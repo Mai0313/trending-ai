@@ -89,6 +89,7 @@ class TrendingAnalysis(OpenAIConfig):
 
         {repo.model_dump_json()}
         You must reply it as a technical report in markdown format, DO NOT include any code block.
+        The title should only contain the repository name and owner. e.g. "<<repo name>> by <<owner>>".
         You must use {language} to write the report.
         """
 
