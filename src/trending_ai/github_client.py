@@ -107,8 +107,7 @@ class GitHubAPIClient(GitHubAPIConfig):
     ) -> list[GitHubRepository]:
         """Get trending repositories from GitHub.
 
-        Since GitHub doesn't have an official trending API, we'll use the search API
-        with specific parameters to get recently popular repositories.
+        Since GitHub doesn't have an official trending API, we'll use the search API with specific parameters to get recently popular repositories.
 
         Args:
             language (Optional[str]): Filter by programming language
