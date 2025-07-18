@@ -1,9 +1,10 @@
 """Analyzer for processing trending repositories and organizing them by language."""
 
 import json
+import base64
 from typing import Any
 from pathlib import Path
-from datetime import datetime
+import datetime
 from collections import defaultdict
 
 from pydantic import Field, model_validator
@@ -12,11 +13,11 @@ from src.trending_ai.models import ReadmeData, TrendingData, LanguageStats, GitH
 from src.trending_ai.github_client import GitHubAPIClient
 
 
-class TrendingAnalyzer(GitHubAPIClient):
+class TrendingAI(GitHubAPIClient):
     output_dir: Path = Field(default=Path("./data"))
 
     @model_validator(mode="after")
-    def _setup(self) -> "TrendingAnalyzer":
+    def _setup(self) -> "TrendingAI":
         self.output_dir.mkdir(exist_ok=True, parents=True)
         return self
 
@@ -55,13 +56,44 @@ class TrendingAnalyzer(GitHubAPIClient):
 
         # Create trending data object
         trending_data = TrendingData(
-            fetched_at=datetime.now(),
+            fetched_at=datetime.datetime.now(),
             total_repositories=len(repositories),
             languages=languages,
             repositories_by_language=dict(repositories_by_language),
         )
 
         return trending_data
+
+    def _get_repository_readme(self, full_name: str) -> ReadmeData | None:
+        """Get the README file for a repository.
+
+        Args:
+            full_name (str): The full name of the repository (owner/repo)
+
+        Returns:
+            Optional[ReadmeData]: The README data if found, None otherwise
+        """
+        url = f"{self.base_url}/repos/{full_name}/readme"
+
+        data = self._make_request(url=url)
+
+        # Decode content if it's base64 encoded
+        content = data.get("content", "")
+        encoding = data.get("encoding", "utf-8")
+
+        if encoding == "base64":
+            content = base64.b64decode(content).decode("utf-8")
+
+        readme = ReadmeData(
+            repository_full_name=full_name,
+            content=content,
+            encoding=encoding,
+            size=data.get("size", 0),
+            download_url=data.get("download_url"),
+            fetched_at=datetime.datetime.now(),
+        )
+
+        return readme
 
     def download_readmes(self, repositories: list[GitHubRepository]) -> dict[str, ReadmeData]:
         """Download README files for a list of repositories.
@@ -74,7 +106,7 @@ class TrendingAnalyzer(GitHubAPIClient):
         """
         readmes = {}
         for repo in repositories:
-            readme = self.get_repository_readme(repo.full_name)
+            readme = self._get_repository_readme(repo.full_name)
             if readme:
                 readmes[repo.full_name] = readme
         return readmes

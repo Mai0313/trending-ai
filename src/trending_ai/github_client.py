@@ -1,16 +1,16 @@
 """GitHub API client for fetching trending repositories and README files."""
 
+import re
 import time
-import base64
 from typing import Any
-import datetime
 
+from bs4 import BeautifulSoup
 import logfire
 from pydantic import Field, ConfigDict, computed_field
 import requests
 from pydantic_settings import BaseSettings
 
-from src.trending_ai.models import ReadmeData, GitHubRepository
+from src.trending_ai.models import GitHubRepository
 
 
 class GitHubAPIConfig(BaseSettings):
@@ -105,9 +105,10 @@ class GitHubAPIClient(GitHubAPIConfig):
     def get_trending_repositories(
         self, language: str | None = None, since: str = "daily"
     ) -> list[GitHubRepository]:
-        """Get trending repositories from GitHub.
+        """Get trending repositories from GitHub trending page.
 
-        Since GitHub doesn't have an official trending API, we'll use the search API with specific parameters to get recently popular repositories.
+        Scrapes the GitHub trending page to get repository names,
+        then fetches detailed information using GitHub API.
 
         Args:
             language (Optional[str]): Filter by programming language
@@ -116,65 +117,67 @@ class GitHubAPIClient(GitHubAPIConfig):
         Returns:
             List[GitHubRepository]: List of trending repositories
         """
-        # Calculate date for "since" parameter
-        days_map = {"daily": 1, "weekly": 7, "monthly": 30}
-        days = days_map.get(since, 1)
-
-        now = datetime.datetime.now()
-        interval = datetime.timedelta(days=days)
-        date_threshold = (now - interval).strftime("%Y-%m-%d")
-
-        query_parts = [f"created:>{date_threshold}", "stars:>1"]
+        # Build trending page URL
+        trending_url = "https://github.com/trending"
+        params = {}
 
         if language:
-            query_parts.append(f"language:{language}")
+            params["l"] = language
 
-        query = " ".join(query_parts)
+        if since in ["daily", "weekly", "monthly"]:
+            since_param_map = {"daily": "daily", "weekly": "weekly", "monthly": "monthly"}
+            params["since"] = since_param_map[since]
 
-        params = {"q": query, "sort": "stars", "order": "desc", "per_page": self.per_page}
-
-        repositories = []
-
-        for page in range(1, self.max_pages + 1):
-            params["page"] = page
-            url = f"{self.base_url}/search/repositories"
-            data = self._make_request(url=url, params=params)
-            items: list[dict[str, Any]] = data.get("items", [])
-            for item in items:
-                repo = GitHubRepository(**item)
-                logfire.info("Fetched repository", **item)
-                repositories.append(repo)
-
-        logfire.info(f"Total repositories fetched: {len(repositories)}")
-        return repositories
-
-    def get_repository_readme(self, full_name: str) -> ReadmeData | None:
-        """Get the README file for a repository.
-
-        Args:
-            full_name (str): The full name of the repository (owner/repo)
-
-        Returns:
-            Optional[ReadmeData]: The README data if found, None otherwise
-        """
-        url = f"{self.base_url}/repos/{full_name}/readme"
-
-        data = self._make_request(url=url)
-
-        # Decode content if it's base64 encoded
-        content = data.get("content", "")
-        encoding = data.get("encoding", "utf-8")
-
-        if encoding == "base64":
-            content = base64.b64decode(content).decode("utf-8")
-
-        readme = ReadmeData(
-            repository_full_name=full_name,
-            content=content,
-            encoding=encoding,
-            size=data.get("size", 0),
-            download_url=data.get("download_url"),
-            fetched_at=datetime.datetime.now(),
+        # Fetch trending page
+        logfire.info(
+            "Fetching trending repositories from GitHub trending page",
+            url=trending_url,
+            params=params,
         )
 
-        return readme
+        # Use a regular session for scraping (no auth needed for public page)
+        scraping_session = requests.Session()
+        scraping_session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        })
+
+        response = scraping_session.get(trending_url, params=params)
+        response.raise_for_status()
+
+        # Parse HTML
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Find repository links - they are typically in h2 tags with class "h3 lh-condensed"
+        # or in article tags containing repository information
+        repo_names = []
+
+        # Look for repository links in the trending page
+        # The structure is usually: <h2 class="h3 lh-condensed"><a href="/owner/repo">
+        repo_links = soup.select('h2.h3.lh-condensed a[href^="/"]')
+
+        if not repo_links:
+            # Try alternative selectors if the main one doesn't work
+            repo_links = soup.select('article h2 a[href^="/"]')
+
+        if not repo_links:
+            # Try another alternative
+            repo_links = soup.select('h1.h3 a[href^="/"]')
+
+        for link in repo_links:
+            href = link.get("href", "")
+            # Extract owner/repo from href like "/owner/repo"
+            match: re.Match[str] | None = re.match(r"^/([^/]+/[^/]+)", href)
+            if match:
+                full_name = match.group(1)
+                repo_names.append(full_name)
+                logfire.info("Found trending repository", repo_name=full_name)
+
+        # Fetch detailed information for each repository using GitHub API
+        repositories = []
+        for repo_name in repo_names:
+            url = f"{self.base_url}/repos/{repo_name}"
+            repo_dict = self._make_request(url=url)
+            repositories.append(GitHubRepository(**repo_dict))
+
+        logfire.info(f"Successfully fetched details for {len(repositories)} repositories")
+        return repositories
