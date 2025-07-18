@@ -107,8 +107,8 @@ class GitHubAPIClient(GitHubAPIConfig):
 
     def get_trendings(
         self,
-        language: Literal["python", "go", "rust", None] = None,
-        since: Literal["daily", "weekly", "monthly"] = "daily",
+        language: Literal["python", "go", "rust", None],
+        since: Literal["daily", "weekly", "monthly"],
     ) -> list[GitHubRepository]:
         """Get trending repositories from GitHub trending page.
 
