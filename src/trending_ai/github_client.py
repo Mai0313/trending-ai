@@ -5,6 +5,7 @@ import base64
 from typing import Any
 from datetime import datetime
 
+import logfire
 from pydantic import Field, ConfigDict, computed_field
 import requests
 from pydantic_settings import BaseSettings
@@ -81,6 +82,7 @@ class GitHubAPIClient(GitHubAPIConfig):
         Raises:
             requests.RequestException: If the request fails
         """
+        result = {}
         try:
             response = self.session.get(url, params=params)
             response.raise_for_status()
@@ -90,17 +92,21 @@ class GitHubAPIClient(GitHubAPIConfig):
             if remaining < 10:
                 reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
                 sleep_time = max(reset_time - int(time.time()), 0) + 1
-                print(f"Rate limit low ({remaining}), sleeping for {sleep_time} seconds...")
+                logfire.warning(
+                    "Rate Limit is Low",
+                    remaining=remaining,
+                    reset_time=reset_time,
+                    sleep_time=sleep_time,
+                )
                 time.sleep(sleep_time)
 
             # Add delay between requests
             time.sleep(self.rate_limit_delay)
+            result = response.json()
 
-            return response.json()
-
-        except requests.RequestException as e:
-            print(f"Error making request to {url}: {e}")
-            raise
+        except Exception:
+            logfire.error(f"Error making request to {url}", _exc_info=True)
+        return result
 
     def get_trending_repositories(
         self, language: str | None = None, since: str = "daily"
@@ -126,10 +132,7 @@ class GitHubAPIClient(GitHubAPIConfig):
 
         date_threshold = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
-        query_parts = [
-            f"created:>{date_threshold}",
-            "stars:>1",  # Only repositories with at least 1 star
-        ]
+        query_parts = [f"created:>{date_threshold}", "stars:>1"]
 
         if language:
             query_parts.append(f"language:{language}")
@@ -143,63 +146,49 @@ class GitHubAPIClient(GitHubAPIConfig):
         for page in range(1, self.max_pages + 1):
             params["page"] = page
             url = f"{self.base_url}/search/repositories"
+            data = self._make_request(url, params)
+            items: list[dict[str, Any]] = data.get("items", [])
 
-            try:
-                data = self._make_request(url, params)
-                items: list[dict[str, Any]] = data.get("items", [])
-
-                if not items:
-                    break
-
-                for item in items:
-                    try:
-                        # Create user object
-                        owner_data = item["owner"]
-                        owner = GitHubUser(
-                            login=owner_data["login"],
-                            id=owner_data["id"],
-                            avatar_url=owner_data["avatar_url"],
-                            html_url=owner_data["html_url"],
-                            type=owner_data["type"],
-                        )
-
-                        # Create repository object
-                        repo = GitHubRepository(
-                            id=item["id"],
-                            name=item["name"],
-                            full_name=item["full_name"],
-                            description=item.get("description"),
-                            html_url=item["html_url"],
-                            language=item.get("language"),
-                            stargazers_count=item["stargazers_count"],
-                            forks_count=item["forks_count"],
-                            open_issues_count=item["open_issues_count"],
-                            created_at=item["created_at"],
-                            updated_at=item["updated_at"],
-                            pushed_at=item["pushed_at"],
-                            owner=owner,
-                            default_branch=item["default_branch"],
-                            size=item["size"],
-                            archived=item["archived"],
-                            disabled=item["disabled"],
-                            private=item["private"],
-                            fork=item["fork"],
-                            topics=item.get("topics", []),
-                        )
-
-                        repositories.append(repo)
-
-                    except Exception as e:
-                        print(f"Error parsing repository {item.get('full_name', 'unknown')}: {e}")
-                        continue
-
-                print(f"Fetched page {page}, got {len(items)} repositories")
-
-            except Exception as e:
-                print(f"Error fetching page {page}: {e}")
+            if not items:
                 break
 
-        print(f"Total repositories fetched: {len(repositories)}")
+            for item in items:
+                # Create user object
+                owner_data = item["owner"]
+                owner = GitHubUser(
+                    login=owner_data["login"],
+                    id=owner_data["id"],
+                    avatar_url=owner_data["avatar_url"],
+                    html_url=owner_data["html_url"],
+                    type=owner_data["type"],
+                )
+
+                # Create repository object
+                repo = GitHubRepository(
+                    id=item["id"],
+                    name=item["name"],
+                    full_name=item["full_name"],
+                    description=item.get("description"),
+                    html_url=item["html_url"],
+                    language=item.get("language"),
+                    stargazers_count=item["stargazers_count"],
+                    forks_count=item["forks_count"],
+                    open_issues_count=item["open_issues_count"],
+                    created_at=item["created_at"],
+                    updated_at=item["updated_at"],
+                    pushed_at=item["pushed_at"],
+                    owner=owner,
+                    default_branch=item["default_branch"],
+                    size=item["size"],
+                    archived=item["archived"],
+                    disabled=item["disabled"],
+                    private=item["private"],
+                    fork=item["fork"],
+                    topics=item.get("topics", []),
+                )
+                repositories.append(repo)
+
+        logfire.info(f"Total repositories fetched: {len(repositories)}")
         return repositories
 
     def get_repository_readme(self, full_name: str) -> ReadmeData | None:
@@ -222,8 +211,8 @@ class GitHubAPIClient(GitHubAPIConfig):
         if encoding == "base64":
             try:
                 content = base64.b64decode(content).decode("utf-8")
-            except Exception as e:
-                print(f"Error decoding README for {full_name}: {e}")
+            except Exception:
+                logfire.error(f"Error decoding README content for {full_name}", _exc_info=True)
                 content = content  # Keep original if decode fails
 
         readme = ReadmeData(

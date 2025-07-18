@@ -6,23 +6,19 @@ from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 
+from pydantic import Field, model_validator
+
 from src.trending_ai.models import ReadmeData, TrendingData, LanguageStats, GitHubRepository
 from src.trending_ai.github_client import GitHubAPIClient
 
 
-class TrendingAnalyzer:
-    """Analyzer for processing and organizing trending GitHub repositories."""
+class TrendingAnalyzer(GitHubAPIClient):
+    output_dir: Path = Field(default=Path("./data"))
 
-    def __init__(self, github_client: GitHubAPIClient, output_dir: str = "output"):
-        """Initialize the trending analyzer.
-
-        Args:
-            github_client (GitHubAPIClient): GitHub API client instance
-            output_dir (str): Directory to save output files
-        """
-        self.github_client = github_client
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(exist_ok=True)
+    @model_validator(mode="after")
+    def _setup(self) -> "TrendingAnalyzer":
+        self.output_dir.mkdir(exist_ok=True, parents=True)
+        return self
 
     def analyze_trending_repositories(self, since: str = "daily") -> TrendingData:
         """Analyze trending repositories and organize them by programming language.
@@ -33,10 +29,8 @@ class TrendingAnalyzer:
         Returns:
             TrendingData: Complete analysis results
         """
-        print(f"Starting analysis of {since} trending repositories...")
-
         # Fetch trending repositories
-        repositories = self.github_client.get_trending_repositories_all_languages(since)
+        repositories = self.get_trending_repositories_all_languages(since)
 
         # Group repositories by language
         repositories_by_language = defaultdict(list)
@@ -67,10 +61,6 @@ class TrendingAnalyzer:
             repositories_by_language=dict(repositories_by_language),
         )
 
-        print(
-            f"Analysis complete! Found {len(repositories)} repositories across {len(languages)} languages."
-        )
-
         return trending_data
 
     def download_readmes(self, repositories: list[GitHubRepository]) -> dict[str, ReadmeData]:
@@ -82,18 +72,11 @@ class TrendingAnalyzer:
         Returns:
             Dict[str, ReadmeData]: Dictionary mapping repository full name to README data
         """
-        print(f"Downloading README files for {len(repositories)} repositories...")
-
         readmes = {}
-
-        for i, repo in enumerate(repositories, 1):
-            print(f"Downloading README {i}/{len(repositories)}: {repo.full_name}")
-
-            readme = self.github_client.get_repository_readme(repo.full_name)
+        for repo in repositories:
+            readme = self.get_repository_readme(repo.full_name)
             if readme:
                 readmes[repo.full_name] = readme
-
-        print(f"Successfully downloaded {len(readmes)} README files.")
         return readmes
 
     def save_analysis_results(
@@ -127,8 +110,6 @@ class TrendingAnalyzer:
 
             json.dump(summary_data, f, indent=2, ensure_ascii=False)
 
-        print(f"Saved trending summary to: {summary_file}")
-
         # Save repositories by language
         for language, repos in trending_data.repositories_by_language.items():
             # Clean language name for filename
@@ -161,8 +142,6 @@ class TrendingAnalyzer:
             with open(lang_file, "w", encoding="utf-8") as f:
                 json.dump(repos_data, f, indent=2, ensure_ascii=False)
 
-            print(f"Saved {len(repos)} {language} repositories to: {lang_file}")
-
         # Save README files
         if readmes:
             readme_dir = self.output_dir / f"readmes_{timestamp}"
@@ -180,34 +159,3 @@ class TrendingAnalyzer:
                     f.write(f"Size: {readme.size} bytes\n\n")
                     f.write("---\n\n")
                     f.write(readme.content)
-
-            print(f"Saved {len(readmes)} README files to: {readme_dir}")
-
-    def print_language_summary(self, trending_data: TrendingData) -> None:
-        """Print a summary of languages and their repository counts.
-
-        Args:
-            trending_data (TrendingData): The trending data to summarize
-        """
-        print("\n" + "=" * 60)
-        print("TRENDING REPOSITORIES SUMMARY")
-        print("=" * 60)
-        print(f"Fetched at: {trending_data.fetched_at}")
-        print(f"Total repositories: {trending_data.total_repositories}")
-        print(f"Programming languages: {len(trending_data.languages)}")
-        print()
-
-        # Sort languages by repository count
-        sorted_languages = sorted(
-            trending_data.languages.items(), key=lambda x: x[1].count, reverse=True
-        )
-
-        print(f"{'Language':<20} {'Count':<10} {'Total Stars':<15} {'Avg Stars':<12}")
-        print("-" * 60)
-
-        for language, stats in sorted_languages:
-            print(
-                f"{language:<20} {stats.count:<10} {stats.total_stars:<15} {stats.average_stars:<12.1f}"
-            )
-
-        print("\n" + "=" * 60)
