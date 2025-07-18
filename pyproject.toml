@@ -81,8 +81,8 @@ requires-python = ">= 3.10"
 license = { text = "MIT" }
 
 [project.urls]
-Homepage = "https://github.com/Mai0313/trending_ai"
-Repository = "https://github.com/Mai0313/trending_ai"
+Homepage = "https://github.com/Mai0313/trending-ai"
+Repository = "https://github.com/Mai0313/trending-ai"
 
 [build-system]
 requires = ["hatchling", "hatch-fancy-pypi-readme"]

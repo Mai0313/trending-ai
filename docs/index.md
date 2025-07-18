@@ -1,147 +1,227 @@
 # TrendingAI - GitHub Trending Repositories Analyzer
 
 [![python](https://img.shields.io/badge/-Python_3.10_%7C_3.11_%7C_3.12-blue?logo=python&logoColor=white)](https://github.com/pre-commit/pre-commit)
-\[!\[uv\](https://img.shields.io/badge/-uv_dependency_management```python
-client = GitHubAPIClient(
-api_key="your_token", # GitHub token
-per_page=100, # Items per API call
-max_pages=10, # Maximum pages to fetch
-rate_limit_delay=1.0, # Delay between requests
-)
-
-# AI Analysis setup
-
-analyzer = TrendingAnalysis(
-base_url="https://api.openai.com/v1", # or Azure endpoint
-api_key="your_openai_key",
-model="gpt-4" # or your preferred model
-)
-
-````
-
-## 🎯 Use Cases
-
-- **Research**: Academic research on programming language trends
-- **Market Analysis**: Understanding popular technologies and frameworks
-- **Developer Insights**: Staying updated with emerging projects
-- **Content Creation**: Blog posts about trending technologies
-- **Portfolio Inspiration**: Discovering interesting projects to learn from
-- **AI-Powered Reports**: Generate intelligent technical analysis for trending repositorieshon&logoColor=white)](https://docs.astral.sh/uv/)
+[![uv](https://img.shields.io/badge/-uv_dependency_management-2C5F2D?logo=python&logoColor=white)](https://docs.astral.sh/uv/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![tests](https://github.com/Mai0313/trending_ai/actions/workflows/test.yml/badge.svg)](https://github.com/Mai0313/trending_ai/actions/workflows/test.yml)
-[![code-quality](https://github.com/Mai0313/trending_ai/actions/workflows/code-quality-check.yml/badge.svg)](https://github.com/Mai0313/trending_ai/actions/workflows/code-quality-check.yml)
-[![codecov](https://codecov.io/gh/Mai0313/trending_ai/branch/master/graph/badge.svg)](https://codecov.io/gh/Mai0313/trending_ai)
-[![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/Mai0313/trending_ai/tree/master?tab=License-1-ov-file)
-[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Mai0313/trending_ai/pulls)
-[![contributors](https://img.shields.io/github/contributors/Mai0313/trending_ai.svg)](https://github.com/Mai0313/trending_ai/graphs/contributors)
+[![tests](https://github.com/Mai0313/trending-ai/actions/workflows/test.yml/badge.svg)](https://github.com/Mai0313/trending-ai/actions/workflows/test.yml)
+[![code-quality](https://github.com/Mai0313/trending-ai/actions/workflows/code-quality-check.yml/badge.svg)](https://github.com/Mai0313/trending-ai/actions/workflows/code-quality-check.yml)
+[![codecov](https://codecov.io/gh/Mai0313/trending-ai/branch/master/graph/badge.svg)](https://codecov.io/gh/Mai0313/trending-ai)
+[![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/Mai0313/trending-ai/tree/master?tab=License-1-ov-file)
+[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Mai0313/trending-ai/pulls)
+[![contributors](https://img.shields.io/github/contributors/Mai0313/trending-ai.svg)](https://github.com/Mai0313/trending-ai/graphs/contributors)
 
 🚀 **A modern Python tool to analyze GitHub trending repositories with web scraping capabilities, language categorization, and comprehensive README collection**
 
 Perfect for researchers, developers, and data scientists who want to monitor trends and collect repository data for analysis and research purposes.
 
-## Why Use TrendingAI?
+## ✨ Features
 
-TrendingAI combines the best of both worlds: web scraping for trend discovery and official GitHub API for comprehensive data collection. This hybrid approach ensures you get complete and accurate information about trending repositories.
+### 🔍 **GitHub Trending Analysis**
 
-- **Comprehensive Data Collection**: Get complete repository metadata, README files, and owner information
-- **Modern Python Stack**: Built with Python 3.10+, Pydantic V2, and modern best practices
-- **Production Ready**: Includes rate limiting, error handling, and structured logging
-- **Easy Integration**: Clean JSON output for seamless integration with other tools
+- **Web scraping + API**: Combines GitHub trending page scraping with official API for complete data
+- **Multi-language support**: Supports Python, Go, Rust, and other languages
+- **Time period flexibility**: Daily, weekly, and monthly trending analysis
+- **Comprehensive data collection**: Stars, forks, issues, creation dates, topics, and complete metadata
 
-## 🎯 Key Features
+### 📊 **Data Collection & Processing**
 
-### **Hybrid Data Collection**
+- **README harvesting**: Automatic download and processing of README files with proper encoding
+- **Structured data models**: Type-safe Pydantic models for all data structures
+- **JSON export**: Clean, structured output for easy integration with other tools
+- **Error resilience**: Continues processing even when individual repositories fail
 
-- **GitHub Trending Scraping**: Uses BeautifulSoup to scrape GitHub's trending page for repository discovery
-- **GitHub API Integration**: Fetches detailed repository information via official API
-- **README Collection**: Downloads and processes README files with proper encoding detection
-- **Multi-language Support**: Filter by specific programming languages or collect all
-- **AI-Powered Analysis**: Generate intelligent technical reports using OpenAI/Azure OpenAI integration
+### 🤖 **AI-Powered Analysis**
 
-### **Modern Development Stack**
+- **OpenAI Integration**: Generate intelligent technical reports for trending repositories
+- **Automated Insights**: AI-powered analysis of repository purpose, highlights, and technical details
+- **Multi-Provider Support**: Works with OpenAI and Azure OpenAI services
+- **Markdown Reports**: Generate professional technical reports in markdown format
 
-- **Python 3.10+** with modern syntax and type hints
-- **Pydantic V2** for data validation and serialization
-- **requests** for HTTP client with session management
-- **BeautifulSoup4** with lxml parser for fast HTML parsing
-- **logfire** for structured logging and monitoring
-- **OpenAI API** for AI-powered repository analysis and report generation
+### 🔧 **Developer Experience**
 
-### **Production-Ready Features**
+- **GitHub API integration**: Official API with intelligent rate limiting and retry logic
+- **Logfire logging**: Advanced logging with structured output for debugging
+- **Configuration management**: Flexible settings via environment variables
+- **Beautiful UI**: BeautifulSoup-powered HTML parsing for trending page scraping
 
-- **Rate Limit Handling**: Intelligent management of GitHub API rate limits
-- **Error Recovery**: Continues processing even when individual repositories fail
-- **Configuration Management**: Environment variable support via pydantic-settings
-- **Structured Output**: Clean JSON export with timestamps for easy analysis
-- **Makefile commands** for common development tasks
+### 🏗️ **Technical Architecture**
 
-## 🚀 Getting Started
+- **Modern Python**: Uses Python 3.10+ features with full type hints
+- **Pydantic V2**: Latest data validation and serialization
+- **Session management**: Persistent HTTP sessions with proper headers
+- **Rate limit handling**: Smart delays and monitoring of GitHub API limits
+- **Modular design**: Clean separation between client, models, analysis, and business logic
+- **AI Analysis Engine**: OpenAI-powered repository analysis and report generation
+- **Documentation**: Comprehensive code documentation and usage examples
+- **Release automation**: Semantic versioning and release drafting
+- **Auto-labeling**: Intelligent PR categorization
 
-### Quick Setup
+### 📚 **Documentation**
 
-=== "Basic Installation"
+- **MkDocs Material**: Beautiful, responsive documentation
+- **Auto-generation**: Scripts to generate docs from code and notebooks
+- **API documentation**: Automatic API reference generation
+- **Blog support**: Built-in blog functionality for project updates
+
+### 🤖 **Automation Scripts**
+
+- **Project initialization**: `scripts/initpyrepo.go` for creating personalized projects
+- **Documentation generation**: `scripts/gen_docs.py` for auto-generating documentation
+- **Makefile commands**: Common development tasks automated
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.10+ installed
+- Git installed
+- Internet connection for GitHub API access
+
+### Installation
+
+1. Clone the repository:
 
     ```bash
-    # Clone the repository
-    git clone https://github.com/Mai0313/trending_ai.git
+    git clone https://github.com/Mai0313/trending-ai.git
     cd trending_ai
-
-    # Install dependencies with uv
-    uv sync
-
-    # Set up GitHub token (optional but recommended)
-    export GITHUB_TOKEN=your_github_token_here
     ```
 
-=== "Development Setup"
+2. Install dependencies:
 
     ```bash
-    # Clone and setup for development
-    git clone https://github.com/Mai0313/trending_ai.git
-    cd trending_ai
-
-    # Install with dev dependencies
-    uv sync --dev
-
-    # Set up pre-commit hooks
-    make format
-
-    # Run tests
-    make test
+    uv sync  # or pip install -r requirements.txt if you don't have uv
     ```
 
-=== "Docker Setup"
+3. (Optional) Set up GitHub Token for higher API limits:
 
     ```bash
-    # Using Docker Compose
-    docker-compose up --build
-
-    # Or using the Dockerfile directly
-    docker build -t trending-ai .
-    docker run -e GITHUB_TOKEN=your_token trending-ai
+    cp .env.example .env
+    # Edit .env and add your GitHub token:
+    # GITHUB_TOKEN=your_github_token_here
     ```
 
 ### Basic Usage
 
+Run the analyzer to get trending repositories for a specific language:
+
 ```bash
-# Run the analyzer to get trending Python repositories
 python main.py
+```
 
-# Output will be saved to ./data/YYYY-MM-DD/ directory
-# Files: github_trending.json + individual .md analysis reports
-````
+This will:
 
-### Configuration
+- ✅ Scrape GitHub trending page for repository names
+- ✅ Fetch detailed information via GitHub API
+- ✅ Download README files with proper encoding handling
+- ✅ Generate AI analysis reports for each repository
+- ✅ Save structured data to `./data/YYYY-MM-DD/` directory
 
-The main application uses a combined `TrendingAI` class:
+### Configuration Options
+
+The current `main.py` uses a combined `TrendingAI` class. You can customize it by modifying the parameters:
 
 ```python
 from src.trending_ai.main import TrendingAI
 
-# Basic usage with default settings
-trending_ai = TrendingAI(model="gpt-4")
+# Initialize with custom settings
+trending_ai = TrendingAI(
+    # GitHub API settings
+    api_key="your_github_token",
+
+    # OpenAI settings
+    base_url="https://api.openai.com/v1",
+    api_key="your_openai_key",
+    model="gpt-4",
+
+    # Output settings
+    output_folder=Path("./custom_output")
+)
+
+# Run analysis
 trending_ai()
 ```
+
+For more granular control, you can use individual components:
+
+````python
+from src.trending_ai.client import GitHubAPIClient
+
+client = GitHubAPIClient()
+repos = client.get_trendings(
+    language="python",  # Options: "python", "go", "rust", None
+    since="daily",      # Options: "daily", "weekly", "monthly"
+    limit=50           # Optional: limit number of repos
+)
+
+This will:
+
+- ✅ Scrape GitHub trending page for repository names
+- ✅ Fetch detailed information via GitHub API
+- ✅ Download README files with proper encoding handling
+- ✅ Save structured data to `./data/` directory with timestamps
+
+### Configuration Options
+
+You can customize the analysis by modifying the client parameters in `main.py`:
+
+```python
+from src.trending_ai.client import GitHubAPIClient
+
+
+def main():
+    client = GitHubAPIClient()
+    repos = client.get_trendings(
+        language="python",  # Options: "python", "go", "rust", None
+        since="daily",  # Options: "daily", "weekly", "monthly"
+        limit=50,  # Optional: limit number of repos
+    )
+````
+
+### Understanding the Output
+
+The program generates files in dated directories under `./data/`:
+
+**Generated files:**
+
+- **`github_trending.json`**: Complete repository data including README content and metadata
+- **`{repo-name}.md`**: AI-generated analysis report for each repository
+
+**Repository data structure in JSON:**
+
+- Basic info: name, description, URL, stars, forks
+- Owner details: username, avatar, profile URL
+- Timestamps: created, updated, last pushed
+- Topics and programming language
+- Complete README content with metadata
+
+**AI Analysis reports contain:**
+
+- Technical summary of the repository
+- Key highlights and features
+- Technology stack analysis
+- Professional markdown formatting
+
+### Example Output
+
+When you run `python main.py`, the application will:
+
+1. **Scrape GitHub trending page** for Python repositories
+2. **Fetch detailed information** via GitHub API
+3. **Download README files** with proper encoding
+4. **Generate AI analysis reports** for each repository
+5. **Save structured data** to dated directories
+
+**Output directory structure:**
+
+```
+./data/2025-07-18/
+├── github_trending.json          # Complete repository data with README content
+├── repo1-name.md                 # AI analysis report for repo1
+├── repo2-name.md                 # AI analysis report for repo2
+└── ...                           # Individual analysis reports for each repo
+```
+
+**Console output is minimal** - the application runs quietly and saves results to files. You can monitor progress through the structured logging if configured.
 
 ## 📁 Project Structure
 
@@ -154,170 +234,263 @@ trending_ai/
 │   ├── client.py          # GitHub API client with web scraping
 │   └── analysis.py        # AI-powered repository analysis
 ├── data/                  # Generated JSON data files
-├── docs/                  # MkDocs documentation
-├── scripts/               # Utility scripts
-├── pyproject.toml         # Project configuration with uv
-├── Makefile              # Development commands
+├── .env.example          # Environment variables template
+├── pyproject.toml        # Project configuration with uv
+├── Makefile             # Development commands
 └── README.md
 ```
 
-## 🔧 Core Components
-
-### Data Models
-
-TrendingAI uses Pydantic V2 for type-safe data structures:
-
-```python
-class GitHubRepository(BaseModel):
-    """Complete repository information including README content."""
-
-    id: int
-    name: str
-    full_name: str
-    description: str | None
-    html_url: str
-    language: str | None
-    stargazers_count: int
-    forks_count: int
-    # ... and many more fields
-    readme: ReadmeData | None  # Embedded README content
-```
-
-### GitHub API Client
-
-The `GitHubAPIClient` combines web scraping and API calls:
-
-- **Trending Discovery**: Scrapes GitHub trending page with BeautifulSoup
-- **Data Enrichment**: Fetches detailed information via GitHub API
-- **Rate Limiting**: Intelligent handling of API limits
-- **Error Recovery**: Continues processing even when individual requests fail
-
-### Output Format
-
-Generated JSON files include complete repository data:
-
-```json
-{
-  "id": 123456789,
-  "name": "awesome-python-project",
-  "full_name": "user/awesome-python-project",
-  "description": "An amazing Python project",
-  "language": "Python",
-  "stargazers_count": 1234,
-  "readme": {
-    "content": "# Awesome Python Project\n\nThis is...",
-    "encoding": "utf-8",
-    "size": 2048,
-    "fetched_at": "2024-07-18_12:30:45"
-  }
-}
-```
-
-## 🛠️ Development
-
-### Available Commands
+## 🛠️ Available Commands
 
 ```bash
 # Run the main analyzer
-python main.py
+python main.py              # Analyze today's trending repositories
 
-# Development commands
+# Development
 make clean                   # Clean autogenerated files
 make format                  # Run pre-commit hooks
 make test                   # Run all tests
 make gen-docs               # Generate documentation
 
-# Dependency management
+# Dependencies
 uv add <package>            # Add production dependency
 uv add <package> --dev      # Add development dependency
 uv sync                     # Install all dependencies
 ```
 
-### Testing
-
-```bash
-# Run tests with coverage
-make test
-
-# Run specific test files
-pytest tests/test_client.py
-
-# Run with verbose output
-pytest -v
-```
-
 ## ⚙️ Configuration
 
-### GitHub Token Setup
+### GitHub Token Setup (Recommended)
 
-For higher API rate limits (5000/hour vs 60/hour):
+To avoid rate limiting and access private repositories, set up a GitHub Personal Access Token:
 
-```bash
-# Set as environment variable
-export GITHUB_TOKEN=ghp_your_token_here
+1. Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
+2. Create a new token with public repository access
+3. Set the token as an environment variable:
+    ```bash
+    export GITHUB_TOKEN=ghp_your_token_here
+    ```
+    Or create a `.env` file:
+    ```bash
+    echo "GITHUB_TOKEN=ghp_your_token_here" > .env
+    ```
 
-# Or create .env file
-echo "GITHUB_TOKEN=ghp_your_token_here" > .env
+### API Rate Limits
+
+- **Without token**: 60 requests/hour
+- **With token**: 5,000 requests/hour
+
+### Customizing Collection Parameters
+
+Edit the configuration in `main.py`:
+
+```python
+from src.trending_ai.client import GitHubAPIClient
+
+# Initialize client with custom settings
+client = GitHubAPIClient(
+    api_key="your_token_here",  # Or set GITHUB_TOKEN env var
+    per_page=100,  # Repositories per API call
+    max_pages=10,  # Maximum pages to fetch
+    rate_limit_delay=1.0,  # Delay between requests (seconds)
+)
+
+# Get trending repositories
+repos = client.get_trendings(
+    language="python",  # "python", "go", "rust", or None for all
+    since="daily",  # "daily", "weekly", or "monthly"
+    limit=50,  # Optional: limit number of repositories
+)
 ```
 
-### AI Analysis Configuration
+## 🎯 What's Included
 
-Set up OpenAI or Azure OpenAI for intelligent repository analysis:
+### Core Components
+
+- **GitHub Trending Scraper**: Scrapes GitHub trending page using BeautifulSoup
+- **GitHub API Client**: Fetches detailed repository information via official API
+- **AI Analysis Engine**: OpenAI-powered analysis for generating technical reports
+- **Data Models**: Type-safe Pydantic models for repositories, users, and README data
+- **README Collector**: Downloads and processes README files with encoding detection
+- **JSON Export**: Structured data export with timestamps
+
+### Data Collection Features
+
+- **Hybrid Approach**: Combines web scraping (for trending discovery) with API (for detailed data)
+- **Comprehensive Metadata**: Stars, forks, issues, dates, topics, owner info, and more
+- **Multi-language Support**: Filter by specific programming languages or collect all
+- **README Extraction**: Full content extraction with Base64 decoding and encoding handling
+- **AI Analysis**: Generate intelligent technical reports about repository purpose and highlights
+- **Progress Logging**: Structured logging with Logfire for debugging and monitoring
+
+### Technical Capabilities
+
+- **Rate Limit Management**: Intelligent handling of GitHub API rate limits with delays
+- **Error Recovery**: Continues processing even when individual repositories fail
+- **Session Management**: Persistent HTTP sessions with proper headers and user agents
+- **Configuration Management**: Environment variable support via pydantic-settings
+- **Type Safety**: Full type annotations and Pydantic validation throughout
+
+### Development Tools
+
+- **uv**: Fast Python dependency management
+- **ruff**: Lightning-fast Python linter and formatter
+- **pytest**: Comprehensive testing framework
+- **pre-commit**: Git hooks for code quality
+- **Pydantic**: Data validation and serialization
+- **Type hints**: Full type annotation support
+
+### Use Cases
+
+- **Research**: Academic research on programming language trends
+- **Market Analysis**: Understanding popular technologies and frameworks
+- **Developer Insights**: Staying updated with emerging projects
+- **Content Creation**: Blog posts and articles about trending technologies
+- **Portfolio Inspiration**: Discovering interesting projects to learn from
+- **AI-Powered Reports**: Generate intelligent technical analysis reports for trending repositories
+
+## 🔧 Advanced Usage
+
+### AI Analysis Integration
+
+Generate intelligent technical reports for repositories:
+
+```python
+from src.trending_ai.analysis import TrendingAnalysis
+from src.trending_ai.client import GitHubAPIClient
+
+# Set up OpenAI configuration
+analyzer = TrendingAnalysis(
+    base_url="https://api.openai.com/v1",  # or Azure endpoint
+    api_key="your_openai_api_key",
+    model="gpt-4",  # or your preferred model
+)
+
+# Get repositories and analyze
+client = GitHubAPIClient()
+repos = client.get_trendings(language="python", since="daily")
+
+for repo in repos:
+    technical_report = analyzer.get_analysis(repo)
+    print(f"Analysis for {repo.full_name}:\n{technical_report}")
+```
+
+### Environment Variables for AI Analysis
 
 ```bash
 # OpenAI Configuration
-export OPENAI_API_TYPE="openai"
+export OPENAI_API_TYPE="openai"  # or "azure"
 export OPENAI_BASE_URL="https://api.openai.com/v1"
-export OPENAI_API_KEY="sk-proj-your_key_here"
+export OPENAI_API_KEY="sk-proj-..."
 
-# Azure OpenAI Configuration
+# For Azure OpenAI
 export OPENAI_API_TYPE="azure"
 export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com"
 export AZURE_OPENAI_API_KEY="your_azure_key"
 export OPENAI_API_VERSION="2024-02-01"
 ```
 
-### Client Configuration
+### Custom Analysis Periods
 
-Customize the GitHub API client:
+Modify the time period for trending analysis:
 
 ```python
-client = GitHubAPIClient(
-    api_key="your_token",  # GitHub token
-    per_page=100,  # Items per API call
-    max_pages=10,  # Maximum pages to fetch
-    rate_limit_delay=1.0,  # Delay between requests
-)
+# In main.py, change the 'since' parameter:
+repos = client.get_trendings(since="weekly")  # or "monthly"
 ```
 
-## � Use Cases
+### Language-Specific Analysis
 
-- **Research**: Academic research on programming language trends
-- **Market Analysis**: Understanding popular technologies and frameworks
-- **Developer Insights**: Staying updated with emerging projects
-- **Content Creation**: Blog posts about trending technologies
-- **Portfolio Inspiration**: Discovering interesting projects to learn from
+Focus on specific programming languages:
+
+```python
+# Add language filtering in github_client.py
+repositories = self.github_client.get_trendings(language="Python", since="daily")
+```
+
+### Batch Processing
+
+For large-scale analysis, implement batch processing:
+
+```python
+languages = ["Python", "JavaScript", "TypeScript", "Go", "Rust"]
+for lang in languages:
+    repos = client.get_trendings(language=lang)
+    # Process each language separately
+```
+
+## 🚨 Error Handling & Troubleshooting
+
+### Common Issues
+
+1. **Rate Limit Exceeded**
+
+    - Solution: Add GitHub token or increase delay between requests
+    - Error: `403 Forbidden` or `X-RateLimit-Remaining: 0`
+
+2. **Network Timeouts**
+
+    - Solution: Check internet connection and GitHub API status
+    - Error: `ConnectionError` or `TimeoutError`
+
+3. **Missing README Files**
+
+    - Normal behavior: Not all repositories have README files
+    - Info: Check console output for "No README found" messages
+
+4. **Encoding Issues**
+
+    - Solution: Program handles multiple encodings automatically
+    - Info: UTF-8 is used as fallback encoding
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how to get started:
+We welcome contributions! Here's how you can help:
+
+### Ways to Contribute
+
+- 🐛 **Report bugs**: Open an issue with detailed reproduction steps
+- 💡 **Suggest features**: Propose new analysis capabilities or improvements
+- 📖 **Improve documentation**: Help make the docs clearer and more comprehensive
+- 🔧 **Submit code**: Fix bugs or implement new features via pull requests
+
+### Development Setup
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes with tests
-4. Run `make format` and `make test`
-5. Submit a pull request
+2. Clone your fork:
+    ```bash
+    git clone https://github.com/your-username/trending_ai.git
+    ```
+3. Install development dependencies:
+    ```bash
+    uv sync --dev
+    ```
+4. Set up pre-commit hooks:
+    ```bash
+    make format
+    ```
 
-See our [Contributing Guide](contributing/) for more details.
+### Pull Request Guidelines
 
-## 📚 API Reference
+- Follow the existing code style (enforced by ruff)
+- Add tests for new functionality
+- Update documentation as needed
+- Ensure all tests pass before submitting
 
-For detailed API documentation, visit: [https://mai0313.github.io/trending_ai/](https://mai0313.github.io/trending_ai/)
+## 📖 Documentation
+
+For detailed API documentation and advanced usage examples, visit: [https://mai0313.github.io/trending_ai/](https://mai0313.github.io/trending_ai/)
 
 ## 👥 Contributors
 
-[![Contributors](https://contrib.rocks/image?repo=Mai0313/trending_ai)](https://github.com/Mai0313/trending_ai/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=Mai0313/trending-ai)](https://github.com/Mai0313/trending-ai/graphs/contributors)
+
+Made with [contrib.rocks](https://contrib.rocks)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**🌟 Ready to analyze GitHub trends?** Start by running `python main.py` and explore the trending repositories! 🚀
+**🌟 If you find TrendingAI useful, please consider giving it a star on GitHub!**
