@@ -4,64 +4,73 @@
 
 # Project Background
 
-<!-- This section provides context about the project, its purpose, and any relevant background information -->
-
-<!-- Example -->
-
-<!-- This is a comprehensive Python project template designed to help developers quickly bootstrap new projects with complete CI/CD pipelines, modern tooling, and best practices. The template includes everything needed to start a professional Python project without spending time on infrastructure setup. -->
+This is TrendingAI, a Python application designed to analyze GitHub trending repositories. The tool fetches trending repositories using GitHub's API, categorizes them by programming language, downloads their README files, and generates comprehensive analysis reports. It's perfect for researchers, developers, and data scientists who want to stay updated with the latest trending projects across different programming languages.
 
 # Project Structure / Features
 
-<!-- This section outlines the key features and structure of the project, including directories, files, and their purposes -->
+## Core Application Features
 
-<!-- Example -->
+- **GitHub API Integration**: Uses GitHub's official API to fetch trending repositories with proper rate limiting and error handling
+- **Language Categorization**: Automatically organizes repositories by programming language
+- **README Collection**: Downloads and stores README files from all trending repositories
+- **Data Export**: Generates structured JSON reports and organized file outputs
+- **Progress Tracking**: Real-time console output showing analysis progress
 
-<!-- ## Core Infrastructure
+## Architecture Components
 
-- **Modern Python**: Supports Python 3.10, 3.11, and 3.12
-- **Dependency Management**: Uses `uv` for fast and reliable dependency management
-- **Project Structure**: src/ layout following Python packaging best practices
-- **Docker Support**: Multi-stage Dockerfile for development and production
-- **VS Code Dev Container**: Fully configured development environment with zsh, oh-my-zsh, and powerlevel10k
+- **Main Entry Point**: `main.py` - Primary script to run the complete analysis
+- **Core Package**: `src/trending_ai/` - Contains all application logic
+    - `models.py` - Pydantic data models for type-safe data structures
+    - `github_client.py` - GitHub API client with rate limiting
+    - `analyzer.py` - Data processing and analysis logic
+- **Output Directory**: `output/` - Generated reports and README files
+- **Configuration**: `.env` file support for GitHub token and other settings
 
-## Code Quality & Testing
+## Data Models (Pydantic)
 
-- **Pre-commit Hooks**: Automated code formatting and linting with ruff
-- **Testing Framework**: pytest with coverage reporting, parallel execution, and detailed reporting
-- **Code Coverage**: Comprehensive coverage tracking with HTML and XML reports
-- **Type Checking**: Full type hint support and validation
+- **GitHubUser**: User/organization information
+- **GitHubRepository**: Complete repository metadata (stars, forks, language, etc.)
+- **LanguageStats**: Statistics aggregated by programming language
+- **TrendingData**: Complete analysis results container
+- **ReadmeData**: README file content and metadata
 
-## CI/CD Pipeline
+## Key Capabilities
 
-- **Automated Testing**: Multi-version Python testing on pull requests
-- **Code Quality Checks**: Automated ruff checks and pre-commit validation
-- **Documentation Deployment**: Automatic GitHub Pages deployment for MkDocs
-- **Release Management**: Automated release drafting and semantic versioning
-- **Auto-labeling**: Intelligent PR labeling based on changes
+- **Trending Analysis**: Fetches repositories with recent activity and high engagement
+- **Multi-language Support**: Processes repositories across all programming languages
+- **Statistical Analysis**: Calculates totals, averages, and distributions by language
+- **File Organization**: Saves data in organized directory structure with timestamps
+- **Error Recovery**: Continues processing even when individual repositories fail
 
-## Documentation
+## Dependencies
 
-- **MkDocs**: Material theme with automatic API documentation generation
-- **Auto-generated Docs**: Scripts to generate documentation from Python code and Jupyter notebooks
-- **Blog Support**: Built-in blog functionality for project updates
-
-## Automation Scripts
-
-- **Project Initialization**: Go script (`scripts/initpyrepo.go`) for creating new projects from template
-- **Documentation Generation**: Python script (`scripts/gen_docs.py`) for auto-generating docs from code
+- **requests**: HTTP client for GitHub API calls
+- **pydantic**: Data validation and serialization
+- **pydantic-settings**: Configuration management
 
 ## Project Usage
 
-This template is designed to be cloned and customized for new Python projects. Developers can use the initialization script to create new projects with personalized configurations while maintaining all the CI/CD and tooling benefits.
+This application is designed to analyze GitHub trending repositories by:
 
-## Template Customization Strategy
+1. **Running the main analyzer**: `python main.py` - Fetches today's trending repositories
+2. **Categorizing by language**: Automatically groups repositories by programming language
+3. **Collecting README files**: Downloads README content for analysis and research
+4. **Generating reports**: Creates timestamped JSON reports and organized file outputs
 
-When users clone this project, they can quickly customize it by performing global replacements:
+## Output Structure
 
-- **Replace `trending_ai`** → Replace with their actual project name (snake_case format)
-- **Replace `TrendingAI`** → Replace with their project title (PascalCase format)
+The application generates several types of output files:
 
-This allows users to instantly personalize the entire project structure, package names, imports, and documentation while keeping all the CI/CD infrastructure intact. -->
+- **trending_summary_YYYYMMDD_HHMMSS.json**: Overall statistics and language breakdown
+- **repositories\_[Language]\_YYYYMMDD_HHMMSS.json**: Detailed repository data per language
+- **readmes_YYYYMMDD_HHMMSS/**: Directory containing all downloaded README files
+
+## Configuration Options
+
+- **GitHub Token**: Set `GITHUB_TOKEN` environment variable for higher API rate limits
+- **API Parameters**: Modify `GitHubAPIConfig` in main.py for custom behavior
+- **Output Directory**: Default is `output/` but can be customized
+- **Time Periods**: Support for daily, weekly, and monthly trending analysis
 
 # Rule Sheet
 
