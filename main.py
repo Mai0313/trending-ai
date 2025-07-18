@@ -67,7 +67,6 @@ class TrendingAI(GitHubAPIClient, TrendingAnalysis):
     async def __call__(self) -> None:
         await self.a_trending()
         await self.a_analysis()
-        return
 
 
 if __name__ == "__main__":
