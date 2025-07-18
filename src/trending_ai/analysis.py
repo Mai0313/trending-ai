@@ -1,9 +1,9 @@
-import openai
-from pydantic import BaseModel, Field, AliasChoices, ConfigDict, computed_field
+from openai import OpenAI, AzureOpenAI
+from pydantic import Field, AliasChoices, computed_field
 from pydantic_settings import BaseSettings
 from openai.types.shared import ChatModel
-from openai import OpenAI, AzureOpenAI
-from src.trending_ai.models import ReadmeData, TrendingData, LanguageStats, GitHubRepository
+
+from src.trending_ai.models import GitHubRepository
 
 
 class OpenAIConfig(BaseSettings):
@@ -40,9 +40,10 @@ class OpenAIConfig(BaseSettings):
         deprecated=False,
     )
 
+
 class TrendingAnalysis(OpenAIConfig):
-    model: ChatModel | str= Field(
-        default="gpt-4.1",
+    model: ChatModel | str = Field(
+        ...,
         title="LLM Model Selection",
         description="This model should be OpenAI Model.",
         frozen=False,
@@ -63,18 +64,16 @@ class TrendingAnalysis(OpenAIConfig):
             client = OpenAI(api_key=self.api_key)
         return client
 
-    def analysis(self, repository: GitHubRepository):
-        """Analyze a GitHub repository using the configured LLM model."""
-
+    def get_analysis(self, repo: GitHubRepository) -> str:
         prompt = f"""
         You are an expert in analyzing GitHub repositories.
-        This repository is from Github trending, please notice some hightlight points and summary what this repo is doing.
+        This repository is from Github trending, please notice some highlight points and summary what this repo is doing.
 
-        {repository.model_dump_json()}
+        {repo.model_dump_json()}
+        You must reply it as a technical report in markdown format.
         """
 
         response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
+            model=self.model, messages=[{"role": "user", "content": prompt}]
         )
         return response.choices[0].message.content
