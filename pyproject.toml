@@ -1,0 +1,616 @@
+[tool.pytest.ini_options]
+addopts = [
+    "--color=yes",
+    "--durations=0",
+    "--durations-min=0.1",
+    "--strict-markers",
+    "--doctest-modules",
+    "--quiet",
+    "--cov=src",
+    "--cov-report=term-missing:skip-covered",
+    "--junitxml=./.github/reports/pytest.xml",
+    "--cov-report=xml:./.github/reports/coverage.xml",
+    "--cov-report=html:./.github/coverage_html_report",
+    "--cache-clear",
+    "-n=auto",
+    "--no-header",
+    "--cov-fail-under=80",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+    "ignore::UserWarning",
+]
+log_cli = true
+log_cli_level = "INFO"
+log_file = "./.github/reports/pytest_logs.log"
+log_file_level = "INFO"
+markers = [
+    "slow: slow tests",
+    "skip_when_ci: Skip when CI/CD",
+]
+minversion = "8.2"
+testpaths = "tests/"
+python_files = "test_*.py"
+cache_dir = "./.cache/pytest"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: nocover",
+    "raise NotImplementedError",
+    "raise NotImplementedError()",
+    "raise ValueError()",
+    "raise AssertionError()",
+    "update_function_signature",
+    "update_tool_signature",
+    "if __name__ == .__main__.:",
+    "if user_id is None and default_headers:",
+]
+
+[tool.coverage.html]
+directory = "./.github/coverage_html_report"
+
+[tool.coverage.run]
+data_file = './.github/reports/.coverage'
+omit = ["./src/ameba/*"]
+
+# ================== #
+#        uv          #
+# ================== #
+
+[project]
+name = "trending_ai"
+version = "0.1.0"
+description = "Repository template for Python projects"
+authors = [
+    { name = "Wei", email = "mai@mai0313.com" },
+]
+dependencies = [
+    "pydantic>=2.11.5",
+    "pydantic-settings>=2.9.1",
+]
+readme = "README.md"
+requires-python = ">= 3.10"
+license = { text = "MIT" }
+
+[project.urls]
+Homepage = "https://github.com/Mai0313/trending_ai"
+Repository = "https://github.com/Mai0313/trending_ai"
+
+[build-system]
+requires = ["hatchling", "hatch-fancy-pypi-readme"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "ipywidgets>=8.1.7",
+    "notebook>=7.4.3",
+    "poethepoet>=0.34.0",
+    "pre-commit>=4.2.0",
+]
+test = [
+    "genbadge[all]>=1.1.2",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=6.1.1",
+    "pytest-xdist[psutil]>=3.7.0",
+]
+docs = [
+    "anyio>=4.9.0",
+    "fire>=0.7.0",
+    "griffe-typingdoc>=0.2.8",
+    "markdown-exec[ansi]>=1.10.3",
+    "mkdocs-autorefs>=1.4.2",
+    "mkdocs-coverage>=1.1.0",
+    "mkdocs-material>=9.6.14",
+    "mkdocstrings[python]>=0.29.1",
+    "rich>=14.0.0",
+    "ruff>=0.11.11",
+    "tabulate>=0.9.0",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build]
+include = [
+    "src/*"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/template"]
+
+[tool.hatch.build.targets.sdist]
+# Basically everything except hidden files/directories (such as .github, .devcontainers, .python-version, etc)
+include = [
+    "/*.toml",
+    "/*.json",
+    "/*.lock",
+    "/*.md",
+    "/noxfile.py",
+    "bin/*",
+    "examples/*",
+    "src/*",
+    "tests/*",
+]
+exclude = [
+    "/.github",
+    "/.devcontainers",
+    "/.python-version",
+    "/.vscode",
+    "/.nox",
+    "/.cache",
+    "/.pytest_cache",
+    "/.mypy_cache",
+    "/.tox",
+    "/.venv",
+    "/.git",
+    "/.gitignore",
+    "/.gitattributes",
+    "/.gitmodules",
+    "/.gitlab-ci.yml",
+    "/.dockerignore",
+    "/.docker",
+    "/.docker-compose",
+    "/.cache",
+]
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.md"
+
+[tool.poe.tasks]
+api = "python ./api.py"
+main = "python ./main.py"
+
+# Documentation
+docs_gen = "make gen-docs"
+docs_deploy = "mkdocs gh-deploy --force --clean"
+docs_run = "mkdocs serve"
+gen = ["docs_gen", "docs_deploy"]
+docs = ["docs_gen", "docs_run"]
+
+# https://docs.astral.sh/uv/reference/settings
+[tool.uv]
+managed = true
+package = false
+check-url = "https://test.pypi.org/simple"
+publish-url = "https://test.pypi.org/legacy/"
+compile-bytecode = true
+# concurrent-builds = 4
+# concurrent-downloads = 4
+# concurrent-installs = 4
+index-strategy = "unsafe-best-match"
+link-mode = "copy"
+native-tls = true
+no-binary = false
+offline = false
+prerelease = "if-necessary-or-explicit"
+preview = true
+
+# https://docs.astral.sh/uv/reference/settings/#index
+[[tool.uv.index]]
+name = "default"
+url = "https://pypi.org/simple"
+default = true
+
+# [[tool.uv.index]]
+# name = "pytorch"
+# url = "https://download.pytorch.org/whl/cu118"
+
+[tool.uv.pip]
+universal = true
+annotation-style = "line"
+output-file = "requirements.txt"
+
+# ================== #
+#        RUFF        #
+# ================== #
+[tool.ruff]
+
+# Enable preview features.
+preview = true
+
+# Enable Auto Fixing.
+fix = true
+unsafe-fixes = true
+
+# Whether to automatically exclude files that are ignored by .ignore, .gitignore, .git/info/exclude, and global gitignore files. Enabled by default.
+respect-gitignore = true
+
+# Enumerate all fixed violations.
+show-fixes = true
+
+# In addition to the standard set of exclusions, omit all tests, plus a specific file.
+extend-exclude = [
+    ".venv",
+    "logs",
+    "data",
+    ".git",
+    "*.svg",
+    "*.sql",
+    ".cache",
+    "__init__.py",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "__pypackages__",
+]
+
+# In addition to the standard set of inclusions, include `.pyw` files.
+extend-include = ["**/*.ipynb", "*.sh"]
+
+# Allow imports relative to the "src" and "test" directories.
+src = ["src", "tests"]
+
+# Assume Python 3.10.*
+target-version = "py310"
+
+# Set the cache directory to `logs/ruff_cache`.
+cache-dir = "./.cache/ruff"  # default: ".ruff_cache", now it is not allowed to create cache dir in logs
+
+# Group violations by containing file.
+# This is output message format; nothing about coding
+# Type: "full" | "concise" | "grouped" | "json" | "junit" | "github" | "gitlab" | "pylint" | "azure"
+output-format = "pylint"
+
+# Same as Google Python Style Guide.
+line-length = 99
+
+[tool.ruff.analyze]
+# Enable preview features.
+preview = true
+detect-string-imports = true
+direction = "dependencies"
+
+
+[tool.ruff.lint]
+# Enable preview features.
+preview = true
+
+task-tags = ["TODO", "FIXME", "BUG", "XXX", "REFACT", "NOTE", "MARK", "HACK"]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+# Ref: https://beta.ruff.rs/docs/rules/#ruff-specific-rules-ruf
+fixable = ["ALL"]
+unfixable = ["T201", "F841"]
+
+# Allow minus-sign (U+2212), greek-small-letter-rho (U+03C1), and the asterisk-operator (U+2217),
+# which could be confused for "-", "p", and "*", respectively.
+allowed-confusables = ["。", "，", "*", "；", "：", "、", "「", "」", "『", "』", "（", "）", "〔", "〕", "【", "】", "《", "》", "〈", "〉", "〖", "〗"]
+
+# Require explicit selection of preview rules.
+explicit-preview-rules = true
+
+select = [
+    "F",  # pyflakes
+    "E", "W",  # pycodestyle
+    "C90",  # mccabe
+    "I",  # isort
+    "N", # pep8-naming
+    "D",  # pydocstyle
+    "UP",  # pyupgrade
+    # "YTT",  # flake8-2020
+    "ANN",  # flake8-annotations
+    "ASYNC",  # flake8-async
+    "S",  # flake8-bandit
+    # "BLE",  # flake8-blind-except
+    # "FBT",  # flake8-boolean-trap
+    "B",  # bugbear
+    "A",  # flake8-builtins
+    # "COM",  # flake8-commas
+    # "CPY",  # flake8-copyright
+    "C4",  # flake8-comprehensions
+    # "DTZ",  # flake8-datetimez
+    "T10",  # flake8-debugger
+    # "DJ",  # flake8-django
+    # "EM",  # flake8-errmsg
+    "EXE",  # flake8-executable
+    "FA",  # flake8-future-annotations
+    # "ISC",  # flake8-implicit-str-concat
+    # "ICN",  # flake8-import-conventions
+    "LOG",  # flake8-logging
+    # "G",  # flake8-logging-format
+    "INP",  # flake8-no-pep420
+    # "PIE",  # flake8-pie
+    "T20",  # flake8-print
+    "PYI",  # flake8-pyi
+    "PT",  # flake8-pytest-style
+    "Q",  # flake8-quotes
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "SLF",  # flake8-self
+    "SLOT",  # flake8-slots
+    "SIM",  # flake8-simplify
+    "TID",  # flake8-tidy-imports
+    "TC",  # flake8-type-checking
+    "INT",  # flake8-gettext
+    # "ARG",  # flake8-unused-arguments
+    # "PTH",  # flake8-use-pathlib
+    # "TD",  # flake8-todos
+    # "FIX",  # flake8-fixme
+    # "ERA",  # eradicate
+    "PD",  # pandas-vet
+    # "PGH",  # pygrep-hooks
+    # "PL",  # Pylint
+    # "TRY",  # tryceratops
+    "FLY",  # flynt
+    "NPY",  # NumPy-specific rules
+    "FAST",  # FastAPI
+    # "AIR",  # Airflow
+    "PERF",  # Perflint
+    # "FURB",  # refurb
+    "DOC",  # pydoclint
+    "RUF",  # Ruff Specific Rules
+]
+
+ignore = [
+    # Additional ignore
+    "E501", "E402",
+    # Missing Docs in functions
+    "D100", "D101", "D102", "D103", "D107", "D205", "D415",
+    # Doc line too long
+    "W505",
+    # "N804",
+    "E266",
+    # No need annotation for `__init__`
+    "ANN204",
+    # no need timeout for requests
+    "S113",
+    # using async without await or async features.
+    "RUF029",
+    # Unnecessary assignment before `return` statement
+    "RET504",
+    # Use a list comprehension to create a transformed list
+    "PERF401",
+    # Use `list` or `list.copy` to create a copy of a list
+    "PERF402",
+    ]
+
+[tool.ruff.lint.pycodestyle]
+# Ignore long comments for TODO, FIXME, XXX
+ignore-overlong-task-comments = true
+max-doc-length = 99
+max-line-length = 99
+
+[tool.ruff.lint.pydocstyle]
+# Use Google-style docstrings.
+# Accepts: "google", "numpy", or "pep257".
+convention = "google"
+ignore-decorators = []
+property-decorators = []
+
+[tool.ruff.lint.pyflakes]
+extend-generics = ["pyrootutils", "autorootcwd", "autoroot", "src.utils.loggers"]
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true
+
+[tool.ruff.lint.per-file-ignores]
+
+# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+"__init__.py" = ["E402", "F401"]
+"*.ipynb" = ["T201", "F401", "S105", "F811", "ANN", "PERF", "SLF"]
+"tests/*" = ["S101", "ANN"]
+"notebooks/*.ipynb" = ["UP", "DOC", "RUF", "D", "C", "F401", "T201"]
+"examples/*.py" = ["UP", "DOC", "RUF", "D", "C", "F401", "T201"]
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+classes = []
+combine-as-imports = false
+constants = []
+default-section = "third-party"
+detect-same-package = true
+extra-standard-library = []
+force-single-line = false
+force-sort-within-sections = true
+force-to-top = []
+force-wrap-aliases = false
+forced-separate = []
+from-first = false
+known-first-party = ["src", "tests"]
+known-local-folder = []
+known-third-party = []
+length-sort = true
+length-sort-straight = true
+lines-after-imports = -1
+lines-between-types = 0
+no-lines-before = ["future", "standard-library"]
+no-sections = false
+order-by-type = true
+relative-imports-order = "furthest-to-closest"
+required-imports = []
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+single-line-exclusions = []
+split-on-trailing-comma=false
+variables = []
+
+[tool.ruff.lint.pylint]
+allow-dunder-method-names = ["__tablename__", "__table_args__"]
+allow-magic-value-types = ["int"]
+max-args = 5
+max-bool-expr = 5
+max-branches = 12
+max-public-methods = 20
+max-returns = 6
+max-statements = 50
+
+[tool.ruff.format]
+# Enable preview style formatting.
+preview = true
+# Enable reformatting of code snippets in docstrings.
+docstring-code-format = true
+# Format all docstring code snippets with a line length of 60.
+docstring-code-line-length = 99
+exclude = ["generated"]
+indent-style = "space"
+line-ending = "auto"
+quote-style = "double"
+skip-magic-trailing-comma = true
+
+# ================== #
+#      Logfire       #
+# ================== #
+
+# For more info:
+# https://docs.pydantic.dev/logfire/api/logfire/#logfire.configure
+[tool.logfire]
+send_to_logfire = false
+token = false
+project_name = "trending_ai"
+trace_sample_rate = 1.0
+console_colors = "auto"
+console_span_style = "show-parents"
+console_include_timestamps = true
+console_verbose = true
+console_min_log_level = "debug"
+show_summary = true
+data_dir = "./.cache/.logfire"
+# base_url = ""
+collect_system_metrics = false
+id_generator = true
+fast_shutdown=true
+
+
+# ================== #
+#     CodeSpell      #
+# ================== #
+
+[tool.codespell]
+skip = "pyproject.toml,poetry.lock,notebook/.*,uv.lock"
+count = false
+quiet-level = 3
+# the correct one is Amoeba, but we use pronunciation in Chinese to name it.
+ignore-words-list = ["ameba", "mke"]
+
+
+# ================== #
+#        Mypy        #
+# ================== #
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+# strict = true
+python_version = "3.10"
+explicit_package_bases = true
+cache_dir = "./.cache/.mypy_cache"
+exclude = ["^tests/"]
+ignore_missing_imports = true
+# install_types = true
+# non_interactive = true
+
+warn_unused_configs = true
+warn_return_any = false
+warn_redundant_casts = true
+warn_unused_ignores = true
+disable_error_code = ["attr-defined", "prop-decorator"]
+
+# remove after all files in the repo are fixed
+follow_imports = "silent"
+
+# from https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
+
+# no_implicit_reexport = true
+# no_implicit_optional = true
+# check_untyped_defs = true
+# show_error_codes = true
+
+# disallow_untyped_defs = true
+# disallow_incomplete_defs = true
+# disallow_any_generics = true
+# disallow_untyped_decorators = true
+# disallow_any_unimported = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = false
+warn_untyped_fields = true
+
+[tool.git-cliff.changelog]
+# template for the changelog header
+header = """
+# Changelog\n
+All notable changes to this project will be documented in this file.\n
+"""
+# template for the changelog body
+# https://keats.github.io/tera/docs/#introduction
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits %}
+        - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
+            {% if commit.breaking %}[**breaking**] {% endif %}\
+            {{ commit.message | upper_first }}\
+    {% endfor %}
+{% endfor %}\n
+"""
+# template for the changelog footer
+footer = """
+<!-- generated by git-cliff -->
+"""
+# remove the leading and trailing s
+trim = true
+# postprocessors
+postprocessors = [
+    # { pattern = '<REPO>', replace = "https://github.com/orhun/git-cliff" }, # replace repository URL
+]
+# render body even when there are no releases to process
+# render_always = true
+# output file path
+# output = "test.md"
+
+[tool.git-cliff.git]
+# parse the commits based on https://www.conventionalcommits.org
+conventional_commits = true
+# filter out the commits that are not conventional
+filter_unconventional = true
+# process each line of a commit as an individual commit
+split_commits = false
+# regex for preprocessing the commit messages
+commit_preprocessors = [
+    # Replace issue numbers
+    #{ pattern = '\((\w+\s)?#([0-9]+)\)', replace = "([#${2}](<REPO>/issues/${2}))"},
+    # Check spelling of the commit with https://github.com/crate-ci/typos
+    # If the spelling is incorrect, it will be automatically fixed.
+    #{ pattern = '.*', replace_command = 'typos --write-changes -' },
+]
+# regex for parsing and grouping commits
+commit_parsers = [
+    { message = "^feat", group = "<!-- 0 -->🚀 Features" },
+    { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
+    { message = "^doc", group = "<!-- 3 -->📚 Documentation" },
+    { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
+    { message = "^refactor", group = "<!-- 2 -->🚜 Refactor" },
+    { message = "^style", group = "<!-- 5 -->🎨 Styling" },
+    { message = "^test", group = "<!-- 6 -->🧪 Testing" },
+    { message = "^chore\\(release\\): prepare for", skip = true },
+    { message = "^chore\\(deps.*\\)", skip = true },
+    { message = "^chore\\(pr\\)", skip = true },
+    { message = "^chore\\(pull\\)", skip = true },
+    { message = "^chore|^ci", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
+    { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
+    { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
+    { message = ".*", group = "<!-- 10 -->💼 Other" },
+]
+# filter out the commits that are not matched by commit parsers
+filter_commits = false
+# sort the tags topologically
+topo_order = false
+# sort the commits inside sections by oldest/newest order
+sort_commits = "newest"

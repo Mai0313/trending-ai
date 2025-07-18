@@ -1,0 +1,50 @@
+services:
+  traefik:
+    image: traefik:latest
+    command:
+      - --accesslog
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --entrypoints.web.address=:80
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # # === SSL + Let's Encrypt 自動簽憑證設定 ===
+      # - --entrypoints.websecure.address=:443                                    # [SSL] 啟用 HTTPS (解註即可開啟)
+      # - --certificatesresolvers.letsencrypt.acme.httpchallenge=true             # [SSL] 啟用 HTTP Challenge 驗證方式
+      # - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web   # [SSL] 指定用 port 80 來驗證
+      # - --certificatesresolvers.letsencrypt.acme.email=mai@mai0313.com          # [SSL] 用於接收過期通知的信箱
+      # - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json # [SSL] 憑證儲存位置
+    ports:
+      - "80:80"
+      - "8080:8080"
+      # - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # - ./letsencrypt:/letsencrypt:ro  # [SSL] 存放憑證的 volume
+    restart: always
+    pull_policy: always
+
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: redis-cli ping
+      interval: 5s
+      timeout: 1s
+      retries: 5
+    # ports:
+    #   - ${REDIS_PORT:-6379}:6379
+    volumes:
+      - redis-data:/var/lib/redis
+    restart: always
+    pull_policy: always
+    labels:
+      - "traefik.enable=true"
+      # - "traefik.http.routers.openwebui.rule=Host(`mai0313.com`)"
+      - "traefik.http.routers.openwebui.rule=PathPrefix(`/`)"  # 匹配所有路徑
+      - "traefik.http.routers.openwebui.entrypoints=web"
+      - "traefik.http.routers.openwebui.service=openwebui"
+      - "traefik.http.services.openwebui.loadbalancer.server.port=9487"
+      - "traefik.http.routers.openwebui.priority=100"
+
+volumes:
+  redis-data: {}
