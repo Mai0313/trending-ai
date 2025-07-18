@@ -1,5 +1,6 @@
 from typing import Literal
-from openai import OpenAI, AzureOpenAI
+
+from openai import OpenAI, AsyncOpenAI, AzureOpenAI, AsyncAzureOpenAI
 from pydantic import Field, AliasChoices, computed_field
 from pydantic_settings import BaseSettings
 from openai.types.shared import ChatModel
@@ -65,7 +66,23 @@ class TrendingAnalysis(OpenAIConfig):
             client = OpenAI(api_key=self.api_key)
         return client
 
-    def get_analysis(self, repo: GitHubRepository, language: Literal["en-US", "zh-TW", "zh-CN"]) -> str:
+    @computed_field
+    @property
+    def a_client(self) -> AsyncOpenAI | AsyncAzureOpenAI:
+        if self.api_type == "azure":
+            client = AsyncAzureOpenAI(
+                api_key=self.api_key,
+                azure_endpoint=self.base_url,
+                api_version=self.api_version,
+                azure_deployment=self.model,
+            )
+        else:
+            client = AsyncOpenAI(api_key=self.api_key)
+        return client
+
+    def get_analysis(
+        self, repo: GitHubRepository, language: Literal["en-US", "zh-TW", "zh-CN"]
+    ) -> str:
         prompt = f"""
         You are an expert in analyzing GitHub repositories.
         This repository is from Github trending, please notice some highlight points and summary what this repo is doing.
@@ -76,6 +93,23 @@ class TrendingAnalysis(OpenAIConfig):
         """
 
         response = self.client.chat.completions.create(
+            model=self.model, messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+
+    async def a_get_analysis(
+        self, repo: GitHubRepository, language: Literal["en-US", "zh-TW", "zh-CN"]
+    ) -> str:
+        prompt = f"""
+        You are an expert in analyzing GitHub repositories.
+        This repository is from Github trending, please notice some highlight points and summary what this repo is doing.
+
+        {repo.model_dump_json()}
+        You must reply it as a technical report in markdown format, DO NOT include any code block.
+        You must use {language} to write the report.
+        """
+
+        response = await self.a_client.chat.completions.create(
             model=self.model, messages=[{"role": "user", "content": prompt}]
         )
         return response.choices[0].message.content

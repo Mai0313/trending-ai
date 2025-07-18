@@ -131,12 +131,12 @@ from src.trending_ai.main import TrendingAI
 trending_ai = TrendingAI(
     # GitHub API settings
     api_key="your_github_token",
-    
-    # OpenAI settings  
+
+    # OpenAI settings
     base_url="https://api.openai.com/v1",
-    api_key="your_openai_key", 
+    api_key="your_openai_key",
     model="gpt-4",
-    
+
     # Output settings
     output_folder=Path("./custom_output")
 )
@@ -147,13 +147,13 @@ trending_ai()
 
 For more granular control, you can use individual components:
 
-```python
+````python
 from src.trending_ai.client import GitHubAPIClient
 
 client = GitHubAPIClient()
 repos = client.get_trendings(
     language="python",  # Options: "python", "go", "rust", None
-    since="daily",      # Options: "daily", "weekly", "monthly"  
+    since="daily",      # Options: "daily", "weekly", "monthly"
     limit=50           # Optional: limit number of repos
 )
 
@@ -179,24 +179,27 @@ def main():
         since="daily",  # Options: "daily", "weekly", "monthly"
         limit=50,  # Optional: limit number of repos
     )
-```
+````
 
 ### Understanding the Output
 
 The program generates files in dated directories under `./data/`:
 
 **Generated files:**
+
 - **`github_trending.json`**: Complete repository data including README content and metadata
 - **`{repo-name}.md`**: AI-generated analysis report for each repository
 
 **Repository data structure in JSON:**
+
 - Basic info: name, description, URL, stars, forks
-- Owner details: username, avatar, profile URL  
+- Owner details: username, avatar, profile URL
 - Timestamps: created, updated, last pushed
 - Topics and programming language
 - Complete README content with metadata
 
 **AI Analysis reports contain:**
+
 - Technical summary of the repository
 - Key highlights and features
 - Technology stack analysis
@@ -207,12 +210,13 @@ The program generates files in dated directories under `./data/`:
 When you run `python main.py`, the application will:
 
 1. **Scrape GitHub trending page** for Python repositories
-2. **Fetch detailed information** via GitHub API  
+2. **Fetch detailed information** via GitHub API
 3. **Download README files** with proper encoding
 4. **Generate AI analysis reports** for each repository
 5. **Save structured data** to dated directories
 
 **Output directory structure:**
+
 ```
 ./data/2025-07-18/
 ├── github_trending.json          # Complete repository data with README content
