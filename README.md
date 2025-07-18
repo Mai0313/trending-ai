@@ -14,40 +14,40 @@
 
 </center>
 
-🚀 **A powerful tool to analyze GitHub trending repositories, categorize them by programming language, and collect README files for analysis**
+🚀 **A modern Python tool to analyze GitHub trending repositories with web scraping capabilities, language categorization, and comprehensive README collection**
 
-Perfect for researchers, developers, and data scientists who want to stay updated with the latest trending projects across different programming languages.
-
-**Other Languages**: [English](README.md) | [中文](README_cn.md)
+Perfect for researchers, developers, and data scientists who want to monitor trends and collect repository data for analysis and research purposes.
 
 ## ✨ Features
 
 ### 🔍 **GitHub Trending Analysis**
 
-- **Multi-language categorization**: Automatically organize repositories by programming language
-- **Comprehensive data collection**: Stars, forks, issues, creation date, and more
-- **README harvesting**: Bulk download of README files for content analysis
-- **Trending periods**: Support for daily, weekly, and monthly trending data
+- **Web scraping + API**: Combines GitHub trending page scraping with official API for complete data
+- **Multi-language support**: Supports Python, Go, Rust, and other languages 
+- **Time period flexibility**: Daily, weekly, and monthly trending analysis
+- **Comprehensive data collection**: Stars, forks, issues, creation dates, topics, and complete metadata
 
-### � **Data Processing & Export**
+### 📊 **Data Collection & Processing**
 
-- **Structured output**: JSON format for easy integration with other tools
-- **Language statistics**: Count, total stars, average stars per language
-- **Detailed repository info**: Full metadata for each trending repository
-- **Export organization**: Separate files by language and time-stamped outputs
+- **README harvesting**: Automatic download and processing of README files with proper encoding
+- **Structured data models**: Type-safe Pydantic models for all data structures
+- **JSON export**: Clean, structured output for easy integration with other tools
+- **Error resilience**: Continues processing even when individual repositories fail
 
 ### 🔧 **Developer Experience**
 
-- **GitHub API integration**: Official API usage for reliable data access
-- **Rate limiting**: Smart handling of API rate limits with automatic delays
-- **Error handling**: Robust error handling for network issues and API limitations
-- **Progress tracking**: Real-time progress updates during data collection
+- **GitHub API integration**: Official API with intelligent rate limiting and retry logic
+- **Logfire logging**: Advanced logging with structured output for debugging
+- **Configuration management**: Flexible settings via environment variables
+- **Beautiful UI**: BeautifulSoup-powered HTML parsing for trending page scraping
 
-### �️ **Technical Features**
+### 🏗️ **Technical Architecture**
 
-- **Type safety**: Full type hints with Pydantic models
-- **Configuration**: Flexible configuration for API settings and output preferences
-- **Extensible**: Modular design for easy feature additions
+- **Modern Python**: Uses Python 3.10+ features with full type hints
+- **Pydantic V2**: Latest data validation and serialization
+- **Session management**: Persistent HTTP sessions with proper headers
+- **Rate limit handling**: Smart delays and monitoring of GitHub API limits
+- **Modular design**: Clean separation between client, models, and business logic
 - **Documentation**: Comprehensive code documentation and usage examples
 - **Release automation**: Semantic versioning and release drafting
 - **Auto-labeling**: Intelligent PR categorization
@@ -98,7 +98,7 @@ Perfect for researchers, developers, and data scientists who want to stay update
 
 ### Basic Usage
 
-Run the analyzer to get today's trending repositories:
+Run the analyzer to get trending repositories for a specific language:
 
 ```bash
 python main.py
@@ -106,18 +106,39 @@ python main.py
 
 This will:
 
-- ✅ Fetch trending repositories from GitHub
-- ✅ Categorize them by programming language
-- ✅ Download README files for all repositories
-- ✅ Generate detailed analysis reports in the `output/` directory
+- ✅ Scrape GitHub trending page for repository names
+- ✅ Fetch detailed information via GitHub API
+- ✅ Download README files with proper encoding handling
+- ✅ Save structured data to `./data/` directory with timestamps
+
+### Configuration Options
+
+You can customize the analysis by modifying the client parameters in `main.py`:
+
+```python
+from src.trending_ai.client import GitHubAPIClient
+
+def main():
+    client = GitHubAPIClient()
+    repos = client.get_trendings(
+        language="python",  # Options: "python", "go", "rust", None
+        since="daily",      # Options: "daily", "weekly", "monthly"
+        limit=50           # Optional: limit number of repos
+    )
+```
 
 ### Understanding the Output
 
-The program generates several files in the `output/` directory:
+The program generates files in the `./data/` directory:
 
-1. **trending_summary_YYYYMMDD_HHMMSS.json**: Overall statistics and language breakdown
-2. **repositories\_[Language]\_YYYYMMDD_HHMMSS.json**: Detailed repository data for each language
-3. **readmes_YYYYMMDD_HHMMSS/**: Directory containing all downloaded README files
+- **trending_repos_YYYY-MM-DD_HH:MM:SS.json**: Complete repository data with README content
+
+Each repository entry includes:
+- Basic info: name, description, URL, stars, forks
+- Owner details: username, avatar, profile URL  
+- Timestamps: created, updated, last pushed
+- Topics and programming language
+- Complete README content with metadata
 
 ### Example Output
 
@@ -158,11 +179,10 @@ trending_ai/
 ├── src/trending_ai/        # Core package
 │   ├── __init__.py
 │   ├── models.py          # Pydantic data models
-│   ├── github_client.py   # GitHub API client
-│   └── analyzer.py        # Data analysis and processing
-├── output/                # Generated reports and data
+│   └── client.py          # GitHub API client with web scraping
+├── data/                  # Generated JSON data files
 ├── .env.example          # Environment variables template
-├── pyproject.toml        # Project configuration
+├── pyproject.toml        # Project configuration with uv
 ├── Makefile             # Development commands
 └── README.md
 ```
@@ -189,17 +209,17 @@ uv sync                     # Install all dependencies
 
 ### GitHub Token Setup (Recommended)
 
-To avoid rate limiting, set up a GitHub Personal Access Token:
+To avoid rate limiting and access private repositories, set up a GitHub Personal Access Token:
 
 1. Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
-2. Create a new token (no special permissions needed, just public repo access)
-3. Copy `.env.example` to `.env`:
+2. Create a new token with public repository access
+3. Set the token as an environment variable:
     ```bash
-    cp .env.example .env
+    export GITHUB_TOKEN=ghp_your_token_here
     ```
-4. Add your token:
+    Or create a `.env` file:
     ```bash
-    GITHUB_TOKEN=ghp_your_token_here
+    echo "GITHUB_TOKEN=ghp_your_token_here" > .env
     ```
 
 ### API Rate Limits
@@ -207,16 +227,26 @@ To avoid rate limiting, set up a GitHub Personal Access Token:
 - **Without token**: 60 requests/hour
 - **With token**: 5,000 requests/hour
 
-### Customizing Analysis Parameters
+### Customizing Collection Parameters
 
 Edit the configuration in `main.py`:
 
 ```python
-config = GitHubAPIConfig(
-    token=github_token,
-    per_page=100,  # Repositories per API call
-    max_pages=3,  # Maximum pages to fetch
-    rate_limit_delay=1.0,  # Delay between requests (seconds)
+from src.trending_ai.client import GitHubAPIClient
+
+# Initialize client with custom settings
+client = GitHubAPIClient(
+    api_key="your_token_here",      # Or set GITHUB_TOKEN env var
+    per_page=100,                   # Repositories per API call
+    max_pages=10,                   # Maximum pages to fetch
+    rate_limit_delay=1.0,           # Delay between requests (seconds)
+)
+
+# Get trending repositories
+repos = client.get_trendings(
+    language="python",  # "python", "go", "rust", or None for all
+    since="daily",      # "daily", "weekly", or "monthly"
+    limit=50           # Optional: limit number of repositories
 )
 ```
 
@@ -224,26 +254,27 @@ config = GitHubAPIConfig(
 
 ### Core Components
 
-- **GitHub API Client**: Robust client with rate limiting and error handling
-- **Data Models**: Type-safe Pydantic models for all data structures
-- **Language Analyzer**: Intelligent categorization and statistical analysis
-- **README Collector**: Bulk download and organization of README files
-- **Export System**: Multiple output formats for different use cases
+- **GitHub Trending Scraper**: Scrapes GitHub trending page using BeautifulSoup
+- **GitHub API Client**: Fetches detailed repository information via official API
+- **Data Models**: Type-safe Pydantic models for repositories, users, and README data
+- **README Collector**: Downloads and processes README files with encoding detection
+- **JSON Export**: Structured data export with timestamps
 
 ### Data Collection Features
 
-- **Trending Repository Detection**: Uses GitHub's search API with smart filters
-- **Comprehensive Metadata**: Stars, forks, issues, dates, topics, and more
-- **Multi-language Support**: Automatic detection and categorization
-- **README Extraction**: Full content extraction with encoding handling
-- **Progress Reporting**: Real-time updates during data collection
+- **Hybrid Approach**: Combines web scraping (for trending discovery) with API (for detailed data)
+- **Comprehensive Metadata**: Stars, forks, issues, dates, topics, owner info, and more
+- **Multi-language Support**: Filter by specific programming languages or collect all
+- **README Extraction**: Full content extraction with Base64 decoding and encoding handling
+- **Progress Logging**: Structured logging with Logfire for debugging and monitoring
 
-### Analysis Capabilities
+### Technical Capabilities
 
-- **Language Statistics**: Repository counts, star distributions, averages
-- **Trend Analysis**: Historical data and growth patterns
-- **Content Organization**: Structured file organization by language and date
-- **Export Flexibility**: JSON, Markdown, and raw text formats
+- **Rate Limit Management**: Intelligent handling of GitHub API rate limits with delays
+- **Error Recovery**: Continues processing even when individual repositories fail
+- **Session Management**: Persistent HTTP sessions with proper headers and user agents
+- **Configuration Management**: Environment variable support via pydantic-settings
+- **Type Safety**: Full type annotations and Pydantic validation throughout
 
 ### Development Tools
 

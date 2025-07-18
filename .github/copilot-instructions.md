@@ -4,89 +4,89 @@
 
 # Project Background
 
-This is TrendingAI, a Python application designed to analyze GitHub trending repositories. The tool fetches trending repositories using GitHub's API, categorizes them by programming language, downloads their README files, and generates comprehensive analysis reports. It's perfect for researchers, developers, and data scientists who want to stay updated with the latest trending projects across different programming languages.
+This is TrendingAI, a modern Python application that analyzes GitHub trending repositories using a hybrid approach combining web scraping and official GitHub API. The tool scrapes GitHub's trending page to discover trending repositories, then uses the GitHub API to fetch comprehensive metadata and README files. It's designed for researchers, developers, and data scientists who need to collect and analyze trending repository data for research, market analysis, or staying updated with technology trends.
 
 # Project Structure / Features
 
 ## Core Application Features
 
-- **GitHub API Integration**: Uses GitHub's official API to fetch trending repositories with proper rate limiting and error handling
-- **Language Categorization**: Automatically organizes repositories by programming language
-- **README Collection**: Downloads and stores README files from all trending repositories
-- **Data Export**: Generates structured JSON reports and organized file outputs
-- **Progress Tracking**: Real-time console output showing analysis progress
+- **Hybrid Data Collection**: Combines GitHub trending page web scraping with official API for complete data
+- **Multi-language Support**: Supports filtering by specific programming languages (Python, Go, Rust) or collecting all languages
+- **README Processing**: Automatic download and processing of README files with proper encoding detection (Base64, UTF-8)
+- **Structured Data Export**: Exports comprehensive JSON data with timestamps for easy integration with other tools
+- **Intelligent Rate Limiting**: Handles GitHub API rate limits with automatic delays and monitoring
 
 ## Architecture Components
 
-- **Main Entry Point**: `main.py` - Primary script to run the complete analysis
+- **Main Entry Point**: `main.py` - Simple script that demonstrates basic usage
 - **Core Package**: `src/trending_ai/` - Contains all application logic
-    - `models.py` - Pydantic data models for type-safe data structures
-    - `github_client.py` - GitHub API client with rate limiting
-    - `analyzer.py` - Data processing and analysis logic
-- **Output Directory**: `output/` - Generated reports and README files
-- **Configuration**: `.env` file support for GitHub token and other settings
+    - `models.py` - Pydantic V2 data models for type-safe data structures
+    - `client.py` - GitHub API client with web scraping capabilities and rate limiting
+- **Output Directory**: `data/` - Generated JSON files with repository data and README content
+- **Configuration**: Environment variables and Pydantic settings for GitHub token and client configuration
 
-## Data Models (Pydantic)
+## Data Models (Pydantic V2)
 
-- **GitHubUser**: User/organization information
-- **GitHubRepository**: Complete repository metadata (stars, forks, language, etc.)
-- **LanguageStats**: Statistics aggregated by programming language
-- **TrendingData**: Complete analysis results container
-- **ReadmeData**: README file content and metadata
+- **GitHubUser**: User/organization information (login, ID, avatar, profile URL, account type)
+- **GitHubRepository**: Complete repository metadata including stars, forks, language, topics, timestamps, and embedded README
+- **ReadmeData**: README file content with metadata (content, encoding, size, download URL, fetch timestamp)
 
 ## Key Capabilities
 
-- **Trending Analysis**: Fetches repositories with recent activity and high engagement
-- **Multi-language Support**: Processes repositories across all programming languages
-- **Statistical Analysis**: Calculates totals, averages, and distributions by language
-- **File Organization**: Saves data in organized directory structure with timestamps
-- **Error Recovery**: Continues processing even when individual repositories fail
+- **Trending Discovery**: Scrapes GitHub trending page using BeautifulSoup to find trending repository names
+- **API Data Enrichment**: Uses GitHub API to fetch complete repository metadata for each discovered repository
+- **README Collection**: Downloads README files for all repositories with proper encoding handling
+- **Error Recovery**: Robust error handling that continues processing even when individual repositories fail
+- **Structured Logging**: Uses Logfire for advanced logging with structured output for debugging
 
 ## Dependencies
 
-- **requests**: HTTP client for GitHub API calls
-- **pydantic**: Data validation and serialization
-- **pydantic-settings**: Configuration management
+- **requests**: HTTP client for both web scraping and GitHub API calls
+- **beautifulsoup4**: HTML parsing for GitHub trending page scraping
+- **lxml**: Fast XML and HTML parser backend for BeautifulSoup
+- **pydantic**: Data validation and serialization (V2)
+- **pydantic-settings**: Configuration management via environment variables
+- **logfire**: Advanced logging with structured output
 
 ## Project Usage
 
-This application is designed to analyze GitHub trending repositories by:
+This application is designed to collect GitHub trending repository data by:
 
-1. **Running the main analyzer**: `python main.py` - Fetches today's trending repositories
-2. **Categorizing by language**: Automatically groups repositories by programming language
-3. **Collecting README files**: Downloads README content for analysis and research
-4. **Generating reports**: Creates timestamped JSON reports and organized file outputs
+1. **Running the main collector**: `python main.py` - Fetches trending repositories for Python (configurable)
+2. **Web scraping**: Scrapes GitHub trending page to discover repository names
+3. **API enrichment**: Fetches detailed metadata for each repository via GitHub API
+4. **README collection**: Downloads and processes README files with proper encoding
+5. **Data export**: Saves structured JSON data with timestamps to `./data/` directory
 
 ## Output Structure
 
-The application generates several types of output files:
+The application generates JSON files in the `data/` directory:
 
-- **trending_summary_YYYYMMDD_HHMMSS.json**: Overall statistics and language breakdown
-- **repositories\_[Language]\_YYYYMMDD_HHMMSS.json**: Detailed repository data per language
-- **readmes_YYYYMMDD_HHMMSS/**: Directory containing all downloaded README files
+- **trending_repos_YYYY-MM-DD_HH:MM:SS.json**: Complete repository data including:
+  - Repository metadata (stars, forks, language, topics, timestamps)
+  - Owner information (username, avatar, profile URL)
+  - Embedded README content with metadata
+  - All data in a single structured JSON array
 
 ## Configuration Options
 
-- **GitHub Token**: Set `GITHUB_TOKEN` environment variable for higher API rate limits
-- **API Parameters**: Modify `GitHubAPIConfig` in main.py for custom behavior
-- **Output Directory**: Default is `output/` but can be customized
-- **Time Periods**: Support for daily, weekly, and monthly trending analysis
+- **GitHub Token**: Set `GITHUB_TOKEN` environment variable for higher API rate limits (5000/hour vs 60/hour)
+- **Language Filter**: Configure in `main.py` - supports "python", "go", "rust", or None for all languages
+- **Time Period**: Configure trending period - "daily", "weekly", or "monthly"
+- **Rate Limiting**: Configurable delays and pagination settings via `GitHubAPIConfig`
+- **Output Location**: Data is saved to `./data/` directory with automatic directory creation
 
 # Rule Sheet
 
-<!-- This section outlines the coding standards, practices, and guidelines to follow when contributing to this project. It ensures consistency, maintainability, and quality across the codebase. -->
+## Coding Style
 
-<!-- Example -->
-
-<!-- ## Coding Style
-
-- Follow `ruff-check` and `ruff-format` for code style and formatting using `pre-commit` hooks.
+- Follow `ruff` for code style and formatting using `pre-commit` hooks
 - Follow PEP 8 naming conventions:
     - snake_case for functions and variables
     - PascalCase for classes
     - UPPER_CASE for constants
-- Follow the Python version specified in the `pyproject.toml` or `.python-version` file.
-- Use pydantic model, and all pydantic models should include `Field`, and `description` should be included.
+- Follow Python 3.10+ features and syntax
+- Use Pydantic V2 models, and all Pydantic models must include `Field` with `description`
 - Maximum line length of 99 characters
 - Use absolute imports over relative imports
 - Use `pytest` for testing, and all tests should be placed in the `tests/` directory
@@ -97,40 +97,44 @@ The application generates several types of output files:
 from pydantic import BaseModel, Field
 
 
-class User(BaseModel):
-    """Example User model.
+class GitHubRepository(BaseModel):
+    """GitHub repository model.
 
     Attributes:
-        name (str): The name of the user
+        name (str): The name of the repository
+        stargazers_count (int): Number of stars
     """
 
-    name: str = Field(..., description="The name of the user")
+    name: str = Field(..., description="The name of the repository")
+    stargazers_count: int = Field(..., description="Number of stars")
 
 
-def foo(self, extra_input: str) -> str:
-    """Example function.
+def fetch_repository_data(repo_name: str) -> GitHubRepository:
+    """Fetch repository data from GitHub API.
 
     Args:
-        extra_input (str): Extra input for the function
+        repo_name (str): Full repository name (owner/repo)
 
     Returns:
-        str: Result of the function
+        GitHubRepository: Repository data object
     """
-    return f"Hello, {self.name} and {extra_input}"
+    # Implementation here
+    pass
 ```
 
 ## Type Hints
 
 - Use type hints for all function parameters and returns
-- Use `TypeVar` for generic types
-- Use `Protocol` for duck typing
+- Use `typing.Literal` for string enums (e.g., `Literal["daily", "weekly", "monthly"]`)
+- Use union types with `|` syntax (Python 3.10+)
+- Use `dict[str, Any]` instead of `Dict[str, Any]`
 
 ## Documentation
 
-- Use Google-style docstrings
+- Use Google-style docstrings for all functions and classes
 - All documentation should be in English
-- Use proper inline comments for better mkdocs support
-- Document environment setup
+- Document all Pydantic model fields with descriptions
+- Include type information and examples where helpful
 
 ## Dependencies
 
@@ -142,4 +146,27 @@ def foo(self, extra_input: str) -> str:
     - Development:
         - Add Dependencies: `uv add <package> --dev`
         - Remove Dependencies: `uv remove <package> --dev`
-- Regularly update dependencies -->
+- Keep dependencies minimal and up-to-date
+
+## Web Scraping and API Guidelines
+
+- Always respect robots.txt and rate limits
+- Use proper User-Agent headers for web scraping
+- Implement error handling for both network and parsing errors
+- Use GitHub API for detailed data, web scraping only for discovery
+- Handle encoding properly when processing README files
+- Implement retry logic with exponential backoff for API calls
+
+## Logging and Monitoring
+
+- Use Logfire for structured logging
+- Log important events like API calls, rate limit status, and errors
+- Include relevant context in log messages (repo names, URLs, etc.)
+- Use appropriate log levels (info, warning, error)
+
+## Error Handling
+
+- Use try/except blocks for network operations
+- Continue processing other items when individual items fail
+- Provide meaningful error messages
+- Log errors with sufficient context for debugging

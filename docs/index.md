@@ -1,4 +1,4 @@
-# Python Project Template
+# TrendingAI - GitHub Trending Repositories Analyzer
 
 [![python](https://img.shields.io/badge/-Python_3.10_%7C_3.11_%7C_3.12-blue?logo=python&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![uv](https://img.shields.io/badge/-uv_dependency_management-2C5F2D?logo=python&logoColor=white)](https://docs.astral.sh/uv/)
@@ -10,268 +10,272 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Mai0313/trending_ai/pulls)
 [![contributors](https://img.shields.io/github/contributors/Mai0313/trending_ai.svg)](https://github.com/Mai0313/trending_ai/graphs/contributors)
 
-🚀 **A comprehensive Python project template designed to help developers quickly bootstrap new projects with complete CI/CD pipelines, modern tooling, and best practices.**
+🚀 **A modern Python tool to analyze GitHub trending repositories with web scraping capabilities, language categorization, and comprehensive README collection**
 
-The template includes everything needed to start a professional Python project without spending time on infrastructure setup.
+Perfect for researchers, developers, and data scientists who want to monitor trends and collect repository data for analysis and research purposes.
 
-**Other Languages**: [English](https://github.com/Mai0313/trending_ai/blob/master/README.md) | [中文](https://github.com/Mai0313/trending_ai/blob/master/README_cn.md)
+## Why Use TrendingAI?
 
-## Why Use This Template?
+TrendingAI combines the best of both worlds: web scraping for trend discovery and official GitHub API for comprehensive data collection. This hybrid approach ensures you get complete and accurate information about trending repositories.
 
-This template eliminates the time-consuming setup of project infrastructure, allowing you to focus on building your application. It provides:
-
-- **Zero-configuration CI/CD**: Complete GitHub Actions workflows out of the box
-- **Modern Python tooling**: Latest best practices with uv, ruff, and pytest
-- **Professional development environment**: VS Code Dev Container with optimized terminal setup
-- **Comprehensive documentation**: Auto-generated docs with MkDocs Material
-- **Quality assurance**: Pre-commit hooks, testing, and coverage reporting
+- **Comprehensive Data Collection**: Get complete repository metadata, README files, and owner information
+- **Modern Python Stack**: Built with Python 3.10+, Pydantic V2, and modern best practices
+- **Production Ready**: Includes rate limiting, error handling, and structured logging
+- **Easy Integration**: Clean JSON output for seamless integration with other tools
 
 ## 🎯 Key Features
 
+### **Hybrid Data Collection**
+
+- **GitHub Trending Scraping**: Uses BeautifulSoup to scrape GitHub's trending page for repository discovery
+- **GitHub API Integration**: Fetches detailed repository information via official API
+- **README Collection**: Downloads and processes README files with proper encoding detection
+- **Multi-language Support**: Filter by specific programming languages or collect all
+
 ### **Modern Development Stack**
 
-- **Python 3.10, 3.11, 3.12** support with uv dependency management
-- **Ruff** for ultra-fast linting and formatting
-- **pytest** with coverage reporting and parallel execution
-- **Pre-commit hooks** for automated code quality checks
+- **Python 3.10+** with modern syntax and type hints
+- **Pydantic V2** for data validation and serialization
+- **requests** for HTTP client with session management
+- **BeautifulSoup4** with lxml parser for fast HTML parsing
+- **logfire** for structured logging and monitoring
 
-### **Complete CI/CD Pipeline**
+### **Production-Ready Features**
 
-- **Automated testing** across multiple Python versions
-- **Code quality gates** with ruff validation
-- **GitHub Pages deployment** for documentation
-- **Release automation** with semantic versioning
-- **Auto-labeling** for pull requests
-
-### **Production-Ready Infrastructure**
-
-- **Docker support** with multi-stage builds
-- **VS Code Dev Container** with zsh, oh-my-zsh, and powerlevel10k
-- **MkDocs documentation** with Material theme
+- **Rate Limit Handling**: Intelligent management of GitHub API rate limits
+- **Error Recovery**: Continues processing even when individual repositories fail
+- **Configuration Management**: Environment variable support via pydantic-settings
+- **Structured Output**: Clean JSON export with timestamps for easy analysis
 - **Makefile commands** for common development tasks
-
-### **Intelligent Automation**
-
-- **Project initialization script** (`scripts/initpyrepo.go`) for personalized setup
-- **Documentation generation** (`scripts/gen_docs.py`) from code and notebooks
-- **Auto-generated API docs** from Python code
-- **Blog functionality** for project updates
 
 ## 🚀 Getting Started
 
-### Quick Setup Options
+### Quick Setup
 
-=== "GitHub Template"
-
-    1. Click [**Use this template**](https://github.com/Mai0313/trending_ai/generate)
-    2. Configure your new repository
-    3. Clone and start developing
-
-=== "Initialization Script"
-
-    ```bash
-    # Clone the template
-    git clone https://github.com/Mai0313/trending_ai.git
-    cd trending_ai
-
-    # Run the initialization script
-    go run scripts/initpyrepo.go
-
-    # Follow the prompts to customize your project
-    ```
-
-=== "Manual Setup"
+=== "Basic Installation"
 
     ```bash
     # Clone the repository
     git clone https://github.com/Mai0313/trending_ai.git
     cd trending_ai
 
-    # Install uv if not already installed
-    make uv-install
-
-    # Install dependencies
+    # Install dependencies with uv
     uv sync
+
+    # Set up GitHub token (optional but recommended)
+    export GITHUB_TOKEN=your_github_token_here
+    ```
+
+=== "Development Setup"
+
+    ```bash
+    # Clone and setup for development
+    git clone https://github.com/Mai0313/trending_ai.git
+    cd trending_ai
+
+    # Install with dev dependencies
+    uv sync --dev
 
     # Set up pre-commit hooks
     make format
+
+    # Run tests
+    make test
     ```
 
-=== "Quick Customization"
+=== "Docker Setup"
 
     ```bash
-    # Clone the repository
-    git clone https://github.com/Mai0313/trending_ai.git
-    cd trending_ai
+    # Using Docker Compose
+    docker-compose up --build
 
-    # Replace with your project name (snake_case)
-    find . -type f -name "*.py" -o -name "*.md" -o -name "*.toml" | xargs sed -i 's/trending_ai/your_project_name/g'
-
-    # Replace with your project title (PascalCase)
-    find . -type f -name "*.py" -o -name "*.md" -o -name "*.toml" | xargs sed -i 's/TrendingAI/YourProjectTitle/g'
-
-    # Install and setup
-    make uv-install && uv sync && make format
+    # Or using the Dockerfile directly
+    docker build -t trending-ai .
+    docker run -e GITHUB_TOKEN=your_token trending-ai
     ```
 
-### Development Workflow
+### Basic Usage
 
 ```bash
-# Run tests
-make test
+# Run the analyzer to get trending Python repositories
+python main.py
 
-# Format code
-make format
+# Output will be saved to ./data/ directory
+# Example: trending_repos_2024-07-18_12:30:45.json
+```
 
-# Generate documentation
-make gen-docs
+### Configuration
 
-# Clean artifacts
-make clean
+Customize the analysis by modifying `main.py`:
+
+```python
+from src.trending_ai.client import GitHubAPIClient
+
+def main():
+    client = GitHubAPIClient()
+    repos = client.get_trendings(
+        language="python",  # Options: "python", "go", "rust", None
+        since="daily",      # Options: "daily", "weekly", "monthly"
+        limit=50           # Optional: limit number of repos
+    )
 ```
 
 ## 📁 Project Structure
 
-The template follows Python packaging best practices with a clean, organized structure:
-
 ```
-├── .devcontainer/          # VS Code Dev Container setup
-│   ├── Dockerfile         # Development environment
-│   └── devcontainer.json  # VS Code configuration
-├── .github/
-│   ├── workflows/         # CI/CD pipelines
-│   │   ├── test.yml      # Multi-version testing
-│   │   ├── code-quality-check.yml
-│   │   ├── deploy.yml    # Documentation deployment
-│   │   └── release_drafter.yml
-│   └── copilot-instructions.md
-├── docker/
-│   ├── Dockerfile        # Production container
-│   └── docker-compose.yaml
-├── docs/                 # MkDocs documentation
-│   ├── index.md
-│   ├── installation/
-│   └── blog/
-├── scripts/              # Automation tools
-│   ├── initpyrepo.go    # Project initialization
-│   └── gen_docs.py      # Documentation generation
-├── src/
-│   └── trending_ai/   # Main package
-├── tests/               # Test suite
-├── pyproject.toml       # Project configuration
-├── .pre-commit-config.yaml
-├── Makefile            # Development commands
+trending_ai/
+├── main.py                 # Main entry point
+├── src/trending_ai/        # Core package
+│   ├── __init__.py
+│   ├── models.py          # Pydantic data models
+│   └── client.py          # GitHub API client with web scraping
+├── data/                  # Generated JSON data files
+├── docs/                  # MkDocs documentation
+├── scripts/               # Utility scripts
+├── pyproject.toml         # Project configuration with uv
+├── Makefile              # Development commands
 └── README.md
 ```
 
-## 🔧 Configuration Files
+## 🔧 Core Components
 
-The template includes comprehensive configuration for:
+### Data Models
 
-- **`pyproject.toml`**: Project metadata, dependencies, and tool configurations
-- **`.pre-commit-config.yaml`**: Code quality hooks with ruff
-- **`pytest` configuration**: Testing, coverage, and reporting setup
-- **`mkdocs.yml`**: Documentation generation and deployment
-- **Docker configurations**: Development and production containers
+TrendingAI uses Pydantic V2 for type-safe data structures:
 
-## 🎨 Customization
-
-### Project Name Customization
-
-This template is designed for quick customization through simple global replacements:
-
-1. **Replace package name**: Change all instances of `trending_ai` to your project name (recommended: snake_case)
-2. **Replace project title**: Change all instances of `TrendingAI` to your project title (recommended: PascalCase)
-3. **Update metadata**: Modify author, description, and other details in `pyproject.toml`
-
-**Example commands:**
-
-```bash
-# If your project is called "awesome_project"
-find . -type f -name "*.py" -o -name "*.md" -o -name "*.toml" | xargs sed -i 's/trending_ai/awesome_project/g'
-find . -type f -name "*.py" -o -name "*.md" -o -name "*.toml" | xargs sed -i 's/TrendingAI/AwesomeProject/g'
+```python
+class GitHubRepository(BaseModel):
+    """Complete repository information including README content."""
+    id: int
+    name: str
+    full_name: str
+    description: str | None
+    html_url: str
+    language: str | None
+    stargazers_count: int
+    forks_count: int
+    # ... and many more fields
+    readme: ReadmeData | None  # Embedded README content
 ```
 
-### Dependency Management
+### GitHub API Client
 
-```bash
-# Add production dependencies
-uv add requests pydantic
+The `GitHubAPIClient` combines web scraping and API calls:
 
-# Add development dependencies
-uv add pytest black --dev
+- **Trending Discovery**: Scrapes GitHub trending page with BeautifulSoup
+- **Data Enrichment**: Fetches detailed information via GitHub API
+- **Rate Limiting**: Intelligent handling of API limits
+- **Error Recovery**: Continues processing even when individual requests fail
 
-# Update all dependencies
-uv sync
+### Output Format
+
+Generated JSON files include complete repository data:
+
+```json
+{
+  "id": 123456789,
+  "name": "awesome-python-project",
+  "full_name": "user/awesome-python-project",
+  "description": "An amazing Python project",
+  "language": "Python",
+  "stargazers_count": 1234,
+  "readme": {
+    "content": "# Awesome Python Project\n\nThis is...",
+    "encoding": "utf-8",
+    "size": 2048,
+    "fetched_at": "2024-07-18_12:30:45"
+  }
+}
 ```
 
-### Documentation
+## 🛠️ Development
 
-The template uses MkDocs with Material theme and supports:
+### Available Commands
 
-- **Auto-generated API docs** from Python docstrings
-- **Jupyter notebook integration** with automatic conversion
-- **Blog functionality** for project updates
-- **Custom themes** and styling
+```bash
+# Run the main analyzer
+python main.py
 
-### CI/CD Customization
+# Development commands
+make clean                   # Clean autogenerated files  
+make format                  # Run pre-commit hooks
+make test                   # Run all tests
+make gen-docs               # Generate documentation
 
-All workflows are modular and can be customized:
+# Dependency management
+uv add <package>            # Add production dependency
+uv add <package> --dev      # Add development dependency  
+uv sync                     # Install all dependencies
+```
 
-- **Testing matrix**: Modify Python versions in `.github/workflows/test.yml`
-- **Code quality**: Adjust ruff rules in `pyproject.toml`
-- **Documentation**: Configure MkDocs deployment in `.github/workflows/deploy.yml`
-- **Release process**: Customize release drafting and versioning
+### Testing
 
-## 🏢 Enterprise Features
+```bash
+# Run tests with coverage
+make test
 
-### Security & Compliance
+# Run specific test files
+pytest tests/test_client.py
 
-- **Dependency scanning** with automated updates
-- **Security linting** with bandit integration
-- **License compliance** tracking
-- **Secrets management** best practices
+# Run with verbose output
+pytest -v
+```
 
-### Team Development
+## ⚙️ Configuration
 
-- **Standardized development environment** with Dev Containers
-- **Code review automation** with quality gates
-- **Consistent coding standards** enforced by pre-commit hooks
-- **Documentation requirements** for all public APIs
+### GitHub Token Setup
 
-## 🌟 Success Stories
+For higher API rate limits (5000/hour vs 60/hour):
 
-This template has been used to bootstrap:
+```bash
+# Set as environment variable
+export GITHUB_TOKEN=ghp_your_token_here
 
-- **Machine Learning projects** with GPU support
-- **Web APIs** with FastAPI and async support
-- **Data processing pipelines** with scientific computing stack
-- **CLI tools** with modern Python packaging
+# Or create .env file
+echo "GITHUB_TOKEN=ghp_your_token_here" > .env
+```
 
-## 📚 Learn More
+### Client Configuration
 
-- [Installation Guide](installation/index.md) - Detailed setup instructions
-- [Development Workflow](workflows/) - Best practices for development
-- [CI/CD Configuration](cicd/) - Understanding the automation
-- [Customization Guide](customization/) - Adapting for your needs
+Customize the GitHub API client:
+
+```python
+client = GitHubAPIClient(
+    api_key="your_token",           # GitHub token
+    per_page=100,                   # Items per API call
+    max_pages=10,                   # Maximum pages to fetch
+    rate_limit_delay=1.0,           # Delay between requests
+)
+```
+
+## � Use Cases
+
+- **Research**: Academic research on programming language trends
+- **Market Analysis**: Understanding popular technologies and frameworks  
+- **Developer Insights**: Staying updated with emerging projects
+- **Content Creation**: Blog posts about trending technologies
+- **Portfolio Inspiration**: Discovering interesting projects to learn from
 
 ## 🤝 Contributing
 
-We welcome contributions! Whether it's:
+We welcome contributions! Here's how to get started:
 
-- 🐛 **Bug reports** and fixes
-- ✨ **Feature requests** and implementations
-- 📝 **Documentation** improvements
-- 🎨 **Template enhancements**
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with tests
+4. Run `make format` and `make test`
+5. Submit a pull request
 
-See our [Contributing Guide](contributing/) for details.
+See our [Contributing Guide](contributing/) for more details.
+
+## 📚 API Reference
+
+For detailed API documentation, visit: [https://mai0313.github.io/trending_ai/](https://mai0313.github.io/trending_ai/)
 
 ## 👥 Contributors
 
 [![Contributors](https://contrib.rocks/image?repo=Mai0313/trending_ai)](https://github.com/Mai0313/trending_ai/graphs/contributors)
 
-Made with [contrib.rocks](https://contrib.rocks)
-
 ---
 
-**Ready to start your next Python project?** [Use this template](https://github.com/Mai0313/trending_ai/generate) and focus on building amazing applications! 🚀
+**🌟 Ready to analyze GitHub trends?** Start by running `python main.py` and explore the trending repositories! 🚀
