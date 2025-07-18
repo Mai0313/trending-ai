@@ -3,7 +3,7 @@
 import time
 import base64
 from typing import Any
-from datetime import datetime
+import datetime
 
 import logfire
 from pydantic import Field, ConfigDict, computed_field
@@ -82,31 +82,25 @@ class GitHubAPIClient(GitHubAPIConfig):
         Raises:
             requests.RequestException: If the request fails
         """
-        result = {}
-        try:
-            response = self.session.get(url, params=params)
-            response.raise_for_status()
+        response = self.session.get(url, params=params)
+        response.raise_for_status()
 
-            # Check rate limit
-            remaining = int(response.headers.get("X-RateLimit-Remaining", 0))
-            if remaining < 10:
-                reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
-                sleep_time = max(reset_time - int(time.time()), 0) + 1
-                logfire.warning(
-                    "Rate Limit is Low",
-                    remaining=remaining,
-                    reset_time=reset_time,
-                    sleep_time=sleep_time,
-                )
-                time.sleep(sleep_time)
+        # Check rate limit
+        remaining = int(response.headers.get("X-RateLimit-Remaining", 0))
+        if remaining < 10:
+            reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
+            sleep_time = max(reset_time - int(time.time()), 0) + 1
+            logfire.warning(
+                "Rate Limit is Low",
+                remaining=remaining,
+                reset_time=reset_time,
+                sleep_time=sleep_time,
+            )
+            time.sleep(sleep_time)
 
-            # Add delay between requests
-            time.sleep(self.rate_limit_delay)
-            result = response.json()
-
-        except Exception:
-            logfire.error(f"Error making request to {url}", _exc_info=True)
-        return result
+        # Add delay between requests
+        time.sleep(self.rate_limit_delay)
+        return response.json()
 
     def get_trending_repositories(
         self, language: str | None = None, since: str = "daily"
@@ -127,10 +121,9 @@ class GitHubAPIClient(GitHubAPIConfig):
         days_map = {"daily": 1, "weekly": 7, "monthly": 30}
         days = days_map.get(since, 1)
 
-        # Create search query for recently created/updated popular repositories
-        from datetime import datetime, timedelta
-
-        date_threshold = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        now = datetime.datetime.now()
+        interval = datetime.timedelta(days=days)
+        date_threshold = (now - interval).strftime("%Y-%m-%d")
 
         query_parts = [f"created:>{date_threshold}", "stars:>1"]
 
@@ -202,18 +195,14 @@ class GitHubAPIClient(GitHubAPIConfig):
         """
         url = f"{self.base_url}/repos/{full_name}/readme"
 
-        data = self._make_request(url)
+        data = self._make_request(url=url)
 
         # Decode content if it's base64 encoded
         content = data.get("content", "")
         encoding = data.get("encoding", "utf-8")
 
         if encoding == "base64":
-            try:
-                content = base64.b64decode(content).decode("utf-8")
-            except Exception:
-                logfire.error(f"Error decoding README content for {full_name}", _exc_info=True)
-                content = content  # Keep original if decode fails
+            content = base64.b64decode(content).decode("utf-8")
 
         readme = ReadmeData(
             repository_full_name=full_name,
@@ -221,20 +210,7 @@ class GitHubAPIClient(GitHubAPIConfig):
             encoding=encoding,
             size=data.get("size", 0),
             download_url=data.get("download_url"),
-            fetched_at=datetime.now(),
+            fetched_at=datetime.datetime.now(),
         )
 
         return readme
-
-    def get_trending_repositories_all_languages(
-        self, since: str = "daily"
-    ) -> list[GitHubRepository]:
-        """Get trending repositories for all languages.
-
-        Args:
-            since (str): Time period ('daily', 'weekly', 'monthly')
-
-        Returns:
-            List[GitHubRepository]: List of all trending repositories
-        """
-        return self.get_trending_repositories(language=None, since=since)

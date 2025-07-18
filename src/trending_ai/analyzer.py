@@ -30,10 +30,10 @@ class TrendingAnalyzer(GitHubAPIClient):
             TrendingData: Complete analysis results
         """
         # Fetch trending repositories
-        repositories = self.get_trending_repositories_all_languages(since)
+        repositories = self.get_trending_repositories(language=None, since=since)
 
         # Group repositories by language
-        repositories_by_language = defaultdict(list)
+        repositories_by_language: dict[str, list[GitHubRepository]] = defaultdict(list)
 
         for repo in repositories:
             language = repo.language or "Unknown"
