@@ -51,4 +51,4 @@ class TrendingAI(GitHubAPIClient, TrendingAnalysis):
 
 if __name__ == "__main__":
     trending_ai = TrendingAI(model="gpt-4.1")
-    trending_ai.analysis()
+    trending_ai()
