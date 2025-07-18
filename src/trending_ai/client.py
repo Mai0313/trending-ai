@@ -185,7 +185,7 @@ class GitHubAPIClient(GitHubAPIConfig):
                     encoding="utf-8",
                     size=0,
                     download_url=None,
-                    fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"),
+                    fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                 )
             repositories.append(repo)
         return repositories
@@ -207,7 +207,7 @@ class GitHubAPIClient(GitHubAPIConfig):
             encoding=encoding,
             size=data.get("size", 0),
             download_url=data.get("download_url"),
-            fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"),
+            fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         )
 
         return readme
@@ -235,7 +235,7 @@ class GitHubAPIClient(GitHubAPIConfig):
 
         # Create trending data object
         trending_data = TrendingData(
-            fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"),
+            fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
             total_repositories=len(repositories),
             languages=languages,
             repositories_by_language=dict(repositories_by_language),
