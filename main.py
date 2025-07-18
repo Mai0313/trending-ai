@@ -11,7 +11,7 @@ from src.trending_ai.analysis import TrendingAnalysis
 
 class TrendingAI(GitHubAPIClient, TrendingAnalysis):
     output_folder: Path = Field(
-        default=Path("./data"),
+        default=Path("./docs/report"),
         description="The folder you wanna save the reports and details.",
         frozen=False,
         deprecated=False,
