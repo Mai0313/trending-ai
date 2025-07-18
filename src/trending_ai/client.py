@@ -5,14 +5,12 @@ import time
 import base64
 from typing import Any, Literal
 import datetime
-import asyncio
-import httpx
 from collections import defaultdict
 
 from bs4 import BeautifulSoup
+import httpx
 import logfire
 from pydantic import Field, ConfigDict, computed_field
-import requests
 from pydantic_settings import BaseSettings
 
 from src.trending_ai.models import ReadmeData, TrendingData, LanguageStats, GitHubRepository
@@ -66,43 +64,36 @@ class GitHubAPIClient(GitHubAPIConfig):
 
     @computed_field
     @property
-    def session(self) -> requests.Session:
-        session = requests.Session()
-        session.headers.update({
+    def headers(self) -> dict[str, str]:
+        headers = {
             "Accept": "application/vnd.github.v3+json",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        })
+        }
         if self.token:
-            session.headers.update({"Authorization": f"token {self.token}"})
-        return session
+            headers.update({"Authorization": f"token {self.token}"})
+        return headers
 
-    def _make_request(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
-        response = self.session.get(url, params=params)
-        response.raise_for_status()
+    def _parse_full_names(self, response: httpx.Response) -> list[str]:
+        soup = BeautifulSoup(response.content, "html.parser")
+        full_names = []
+        repo_links = soup.select('h2.h3.lh-condensed a[href^="/"]')
+        if not repo_links:
+            repo_links = soup.select('article h2 a[href^="/"]')
+        if not repo_links:
+            repo_links = soup.select('h1.h3 a[href^="/"]')
+        for link in repo_links:
+            href = link.get("href", "")
+            # Extract owner/repo from href like "/owner/repo"
+            match: re.Match[str] | None = re.match(r"^/([^/]+/[^/]+)", href)
+            if match:
+                full_name = match.group(1)
+                full_names.append(full_name)
+                logfire.info("Found trending repository", full_name=full_name)
+        return full_names
 
-        # Check rate limit
-        remaining = int(response.headers.get("X-RateLimit-Remaining", 0))
-        if remaining < 10:
-            reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
-            sleep_time = max(reset_time - int(time.time()), 0) + 1
-            logfire.warning(
-                "Rate Limit is Low",
-                remaining=remaining,
-                reset_time=reset_time,
-                sleep_time=sleep_time,
-            )
-            time.sleep(sleep_time)
-        return response.json()
-
-    async def _a_make_request(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
-        async with httpx.AsyncClient() as client:
-            headers={
-                "Accept": "application/vnd.github.v3+json",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            }
-            if self.token:
-                headers.update({"Authorization": f"token {self.token}"})
-            response = await client.get(url, params=params, headers=headers)
+    def _make_request(self, url: str, params: dict[str, Any] | None = None) -> httpx.Response:
+        with httpx.Client(params=params, headers=self.headers) as client:
+            response = client.get(url)
             response.raise_for_status()
 
             # Check rate limit
@@ -116,105 +107,70 @@ class GitHubAPIClient(GitHubAPIConfig):
                     reset_time=reset_time,
                     sleep_time=sleep_time,
                 )
-                await asyncio.sleep(sleep_time)
-            return response.json()
+                time.sleep(sleep_time)
+            return response
 
     def get_trendings(
         self,
         language: Literal["python", "go", "rust", None],
         since: Literal["daily", "weekly", "monthly"],
-        limit: int | None = None,
     ) -> list[GitHubRepository]:
         # Build trending page URL
         trending_url = "https://github.com/trending"
-        params: dict[str, str] = {"since": since}
         if language:
             trending_url += f"/{language}"
 
-        # Fetch trending page
-        logfire.info(
-            "Fetching trending repositories from GitHub trending page",
-            url=trending_url,
-            params=params,
-        )
+        response = self._make_request(url=trending_url, params={"since": since})
+        full_names = self._parse_full_names(response=response)
 
-        response = self.session.get(trending_url, params=params)
-        response.raise_for_status()
-
-        # Parse HTML
-        soup = BeautifulSoup(response.content, "html.parser")
-
-        # Find repository links - they are typically in h2 tags with class "h3 lh-condensed"
-        # or in article tags containing repository information
-        repo_names = []
-
-        # Look for repository links in the trending page
-        # The structure is usually: <h2 class="h3 lh-condensed"><a href="/owner/repo">
-        repo_links = soup.select('h2.h3.lh-condensed a[href^="/"]')
-
-        if not repo_links:
-            # Try alternative selectors if the main one doesn't work
-            repo_links = soup.select('article h2 a[href^="/"]')
-
-        if not repo_links:
-            # Try another alternative
-            repo_links = soup.select('h1.h3 a[href^="/"]')
-
-        for link in repo_links:
-            href = link.get("href", "")
-            # Extract owner/repo from href like "/owner/repo"
-            match: re.Match[str] | None = re.match(r"^/([^/]+/[^/]+)", href)
-            if match:
-                full_name = match.group(1)
-                repo_names.append(full_name)
-                logfire.info("Found trending repository", repo_name=full_name)
-
-        # Fetch detailed information for each repository using GitHub API
-        if limit:
-            repo_names = repo_names[:limit]
         repositories: list[GitHubRepository] = []
-        for repo_name in repo_names:
-            logfire.info("Fetching repository details from GitHub API", repo_name=repo_name)
-            url = f"{self.base_url}/repos/{repo_name}"
-            repo_dict = self._make_request(url=url)
-            repo = GitHubRepository(**repo_dict)
-            try:
-                repo.readme = self.get_readme(full_name=repo.full_name)
-            except Exception:
-                repo.readme = ReadmeData(
-                    repository_full_name=repo.full_name,
-                    content=f"No readme available, please check {repo.html_url}",
-                    encoding="utf-8",
-                    size=0,
-                    download_url=None,
-                    fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-                )
+        for full_name in full_names:
+            logfire.info("Fetching repository details from GitHub API", full_name=full_name)
+            repo = self.get_info(full_name=full_name)
             repositories.append(repo)
         return repositories
+
+    def get_info(self, full_name: str) -> GitHubRepository:
+        url = f"{self.base_url}/repos/{full_name}"
+        response = self._make_request(url=url)
+        repo_dict: dict[str, Any] = response.json()
+        repo = GitHubRepository(**repo_dict)
+        try:
+            repo.readme = self.get_readme(full_name=repo.full_name)
+        except Exception:
+            repo.readme = ReadmeData(
+                repository_full_name=repo.full_name,
+                content=f"No readme available, please check {repo.html_url}",
+                encoding="utf-8",
+                size=0,
+                download_url=None,
+                fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+            )
+        return repo
 
     def get_readme(self, full_name: str) -> ReadmeData:
         url = f"{self.base_url}/repos/{full_name}/readme"
 
-        data = self._make_request(url=url)
+        response = self._make_request(url=url)
+        data: dict[str, Any] = response.json()
 
         content = data.get("content", "")
         encoding = data.get("encoding", "utf-8")
 
         if encoding == "base64":
-            content = base64.b64decode(content).decode("utf-8")
+            data.update({"content": base64.b64decode(content).decode("utf-8")})
 
         readme = ReadmeData(
             repository_full_name=full_name,
-            content=content,
-            encoding=encoding,
+            content=data.get("content", ""),
+            encoding=data.get("encoding", "utf-8"),
             size=data.get("size", 0),
             download_url=data.get("download_url"),
             fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         )
-
         return readme
 
-    def get_detail(self, repositories: list[GitHubRepository]) -> TrendingData:
+    def get_summary(self, repositories: list[GitHubRepository]) -> TrendingData:
         # Group repositories by language
         repositories_by_language: dict[str, list[GitHubRepository]] = defaultdict(list)
         for repo in repositories:
