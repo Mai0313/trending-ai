@@ -29,4 +29,3 @@ submodule-update:  # Update all submodules
 
 gen-docs:  ## Generate documentation
 	python ./scripts/gen_docs.py --source ./src --output ./docs/Reference gen_docs
-	python ./scripts/gen_docs.py --source ./scripts --output ./docs/Scripts gen_docs
