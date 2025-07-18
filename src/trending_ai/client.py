@@ -176,7 +176,14 @@ class GitHubAPIClient(GitHubAPIConfig):
             try:
                 repo.readme = self.get_readme(full_name=repo.full_name)
             except Exception:
-                repo.readme = f"No readme available, please check {repo.html_url}"
+                repo.readme = ReadmeData(
+                    repository_full_name=repo.full_name,
+                    content=f"No readme available, please check {repo.html_url}",
+                    encoding="utf-8",
+                    size=0,
+                    download_url=None,
+                    fetched_at=datetime.datetime.now(),
+                )
             repositories.append(repo)
         return repositories
 

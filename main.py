@@ -1,12 +1,19 @@
-from src.trending_ai.github_client import GitHubAPIClient
-from src.trending_ai.trending import TrendingAI
+import json
+from pathlib import Path
+import datetime
+
+from src.trending_ai.client import GitHubAPIClient
 
 
 def main() -> None:
     """Main function to run the trending repositories analysis."""
-    trending = TrendingAI()
-    repos = trending.analyze_trending_repositories()
-    print(repos[0])
+    client = GitHubAPIClient()
+    repos = client.get_trendings()
+    repo_list = [repo.model_dump() for repo in repos]
+    today = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    output_filename = Path(f"trending_repos_{today}.json")
+    with output_filename.open("w", encoding="utf-8") as f:
+        json.dump(repo_list, f, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":

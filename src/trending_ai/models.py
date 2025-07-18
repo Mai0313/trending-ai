@@ -23,6 +23,26 @@ class GitHubUser(BaseModel):
     type: str = Field(..., description="Type of account (User or Organization)")
 
 
+class ReadmeData(BaseModel):
+    """README file data model.
+
+    Attributes:
+        repository_full_name (str): The full name of the repository
+        content (str): The README content
+        encoding (str): The encoding of the content
+        size (int): Size of the README file
+        download_url (Optional[str]): URL to download the README
+        fetched_at (datetime.datetime): When the README was fetched
+    """
+
+    repository_full_name: str = Field(..., description="The full name of the repository")
+    content: str = Field(..., description="The README content")
+    encoding: str = Field(..., description="The encoding of the content")
+    size: int = Field(..., description="Size of the README file")
+    download_url: str | None = Field(None, description="URL to download the README")
+    fetched_at: datetime.datetime = Field(..., description="When the README was fetched")
+
+
 class GitHubRepository(BaseModel):
     """GitHub repository model.
 
@@ -69,7 +89,7 @@ class GitHubRepository(BaseModel):
     private: bool = Field(..., description="Whether the repository is private")
     fork: bool = Field(..., description="Whether the repository is a fork")
     topics: list[str] = Field(default_factory=list, description="Repository topics/tags")
-    readme: str | None = Field(default=None, description="README content if available")
+    readme: ReadmeData | None = Field(default=None, description="README content if available")
 
 
 class LanguageStats(BaseModel):
@@ -110,23 +130,3 @@ class TrendingData(BaseModel):
     repositories_by_language: dict[str, list[GitHubRepository]] = Field(
         ..., description="Repositories grouped by language"
     )
-
-
-class ReadmeData(BaseModel):
-    """README file data model.
-
-    Attributes:
-        repository_full_name (str): The full name of the repository
-        content (str): The README content
-        encoding (str): The encoding of the content
-        size (int): Size of the README file
-        download_url (Optional[str]): URL to download the README
-        fetched_at (datetime.datetime): When the README was fetched
-    """
-
-    repository_full_name: str = Field(..., description="The full name of the repository")
-    content: str = Field(..., description="The README content")
-    encoding: str = Field(..., description="The encoding of the content")
-    size: int = Field(..., description="Size of the README file")
-    download_url: str | None = Field(None, description="URL to download the README")
-    fetched_at: datetime.datetime = Field(..., description="When the README was fetched")
