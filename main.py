@@ -8,7 +8,7 @@ from src.trending_ai.client import GitHubAPIClient
 def main() -> None:
     """Main function to run the trending repositories analysis."""
     client = GitHubAPIClient()
-    repos = client.get_trendings(language="python", since="daily", limit=1)
+    repos = client.get_trendings(language="python", since="daily")
     repo_list = [repo.model_dump() for repo in repos]
     today = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     output_path = Path(f"./data/trending_repos_{today}.json")
