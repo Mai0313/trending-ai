@@ -2,9 +2,10 @@
 
 import time
 import base64
+from typing import Any
 from datetime import datetime
 
-from pydantic import Field
+from pydantic import Field, ConfigDict, computed_field
 import requests
 from pydantic_settings import BaseSettings
 
@@ -51,28 +52,23 @@ class GitHubAPIConfig(BaseSettings):
     )
 
 
-class GitHubAPIClient:
+class GitHubAPIClient(GitHubAPIConfig):
     """Client for interacting with GitHub API."""
 
-    def __init__(self, config: GitHubAPIConfig):
-        """Initialize the GitHub API client.
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-        Args:
-            config (GitHubAPIConfig): Configuration for the API client
-        """
-        self.config = config
-        self.session = requests.Session()
-
-        # Set up headers
-        self.session.headers.update({
+    @computed_field
+    @property
+    def session(self) -> requests.Session:
+        session = requests.Session()
+        session.headers.update({
             "Accept": "application/vnd.github.v3+json",
             "User-Agent": "TrendingAI/1.0",
+            "Authorization": f"token {self.api_key}",
         })
+        return session
 
-        if self.config.api_key:
-            self.session.headers.update({"Authorization": f"token {self.config.api_key}"})
-
-    def _make_request(self, url: str, params: dict | None = None) -> dict:
+    def _make_request(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """Make a request to the GitHub API with rate limiting.
 
         Args:
@@ -98,7 +94,7 @@ class GitHubAPIClient:
                 time.sleep(sleep_time)
 
             # Add delay between requests
-            time.sleep(self.config.rate_limit_delay)
+            time.sleep(self.rate_limit_delay)
 
             return response.json()
 
@@ -140,17 +136,17 @@ class GitHubAPIClient:
 
         query = " ".join(query_parts)
 
-        params = {"q": query, "sort": "stars", "order": "desc", "per_page": self.config.per_page}
+        params = {"q": query, "sort": "stars", "order": "desc", "per_page": self.per_page}
 
         repositories = []
 
-        for page in range(1, self.config.max_pages + 1):
+        for page in range(1, self.max_pages + 1):
             params["page"] = page
-            url = f"{self.config.base_url}/search/repositories"
+            url = f"{self.base_url}/search/repositories"
 
             try:
                 data = self._make_request(url, params)
-                items = data.get("items", [])
+                items: list[dict[str, Any]] = data.get("items", [])
 
                 if not items:
                     break
@@ -215,7 +211,7 @@ class GitHubAPIClient:
         Returns:
             Optional[ReadmeData]: The README data if found, None otherwise
         """
-        url = f"{self.config.base_url}/repos/{full_name}/readme"
+        url = f"{self.base_url}/repos/{full_name}/readme"
 
         data = self._make_request(url)
 
@@ -252,5 +248,4 @@ class GitHubAPIClient:
         Returns:
             List[GitHubRepository]: List of all trending repositories
         """
-        print("Fetching trending repositories for all languages...")
         return self.get_trending_repositories(language=None, since=since)

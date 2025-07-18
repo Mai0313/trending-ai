@@ -214,9 +214,9 @@ Edit the configuration in `main.py`:
 ```python
 config = GitHubAPIConfig(
     token=github_token,
-    per_page=100,           # Repositories per API call
-    max_pages=3,            # Maximum pages to fetch
-    rate_limit_delay=1.0    # Delay between requests (seconds)
+    per_page=100,  # Repositories per API call
+    max_pages=3,  # Maximum pages to fetch
+    rate_limit_delay=1.0,  # Delay between requests (seconds)
 )
 ```
 
