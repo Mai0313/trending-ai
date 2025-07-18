@@ -67,19 +67,19 @@ plugins:
   - search
   - tags
   # https://squidfunk.github.io/mkdocs-material/plugins/blog/
-  - blog:
-      blog_toc: true
-      archive: false
-      archive_name: Archive
-      archive_date_format: MMMM yyyy
-      archive_url_date_format: yyyy/MM
-      archive_toc: true
+  # - blog:
+  #     blog_toc: true
+  #     archive: false
+  #     archive_name: Archive
+  #     archive_date_format: MMMM yyyy
+  #     archive_url_date_format: yyyy/MM
+  #     archive_toc: true
   # - autorefs
   # https://pawamoy.github.io/markdown-exec/usage
   - markdown-exec
-  - coverage:
-      page_path: Development/coverage  # default
-      html_report_dir: ./.github/coverage_html_report  # default
+  # - coverage:
+  #     page_path: Development/coverage  # default
+  #     html_report_dir: ./.github/coverage_html_report  # default
   - mkdocstrings:
       handlers:
         python:
