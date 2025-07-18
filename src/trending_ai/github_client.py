@@ -10,7 +10,7 @@ from pydantic import Field, ConfigDict, computed_field
 import requests
 from pydantic_settings import BaseSettings
 
-from src.trending_ai.models import GitHubUser, ReadmeData, GitHubRepository
+from src.trending_ai.models import ReadmeData, GitHubRepository
 
 
 class GitHubAPIConfig(BaseSettings):
@@ -139,46 +139,11 @@ class GitHubAPIClient(GitHubAPIConfig):
         for page in range(1, self.max_pages + 1):
             params["page"] = page
             url = f"{self.base_url}/search/repositories"
-            data = self._make_request(url, params)
+            data = self._make_request(url=url, params=params)
             items: list[dict[str, Any]] = data.get("items", [])
-
-            if not items:
-                break
-
             for item in items:
-                # Create user object
-                owner_data = item["owner"]
-                owner = GitHubUser(
-                    login=owner_data["login"],
-                    id=owner_data["id"],
-                    avatar_url=owner_data["avatar_url"],
-                    html_url=owner_data["html_url"],
-                    type=owner_data["type"],
-                )
-
-                # Create repository object
-                repo = GitHubRepository(
-                    id=item["id"],
-                    name=item["name"],
-                    full_name=item["full_name"],
-                    description=item.get("description"),
-                    html_url=item["html_url"],
-                    language=item.get("language"),
-                    stargazers_count=item["stargazers_count"],
-                    forks_count=item["forks_count"],
-                    open_issues_count=item["open_issues_count"],
-                    created_at=item["created_at"],
-                    updated_at=item["updated_at"],
-                    pushed_at=item["pushed_at"],
-                    owner=owner,
-                    default_branch=item["default_branch"],
-                    size=item["size"],
-                    archived=item["archived"],
-                    disabled=item["disabled"],
-                    private=item["private"],
-                    fork=item["fork"],
-                    topics=item.get("topics", []),
-                )
+                repo = GitHubRepository(**item)
+                logfire.info("Fetched repository", **item)
                 repositories.append(repo)
 
         logfire.info(f"Total repositories fetched: {len(repositories)}")
