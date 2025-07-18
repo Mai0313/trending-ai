@@ -279,7 +279,7 @@ Focus on specific programming languages:
 
 ```python
 # Add language filtering in github_client.py
-repositories = self.github_client.get_trending_repositories(language="Python", since="daily")
+repositories = self.github_client.get_trendings(language="Python", since="daily")
 ```
 
 ### Batch Processing
@@ -289,7 +289,7 @@ For large-scale analysis, implement batch processing:
 ```python
 languages = ["Python", "JavaScript", "TypeScript", "Go", "Rust"]
 for lang in languages:
-    repos = client.get_trending_repositories(language=lang)
+    repos = client.get_trendings(language=lang)
     # Process each language separately
 ```
 

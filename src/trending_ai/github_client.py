@@ -2,7 +2,10 @@
 
 import re
 import time
-from typing import Any
+import base64
+from typing import Any, Literal
+from collections import defaultdict
+import datetime
 
 from bs4 import BeautifulSoup
 import logfire
@@ -10,7 +13,7 @@ from pydantic import Field, ConfigDict, computed_field
 import requests
 from pydantic_settings import BaseSettings
 
-from src.trending_ai.models import GitHubRepository
+from src.trending_ai.models import ReadmeData, TrendingData, LanguageStats, GitHubRepository
 
 
 class GitHubAPIConfig(BaseSettings):
@@ -102,8 +105,10 @@ class GitHubAPIClient(GitHubAPIConfig):
         time.sleep(self.rate_limit_delay)
         return response.json()
 
-    def get_trending_repositories(
-        self, language: str | None = None, since: str = "daily"
+    def get_trendings(
+        self,
+        language: Literal["python", "go", "rust", None] = None,
+        since: Literal["daily", "weekly", "monthly"] = "daily",
     ) -> list[GitHubRepository]:
         """Get trending repositories from GitHub trending page.
 
@@ -111,22 +116,17 @@ class GitHubAPIClient(GitHubAPIConfig):
         then fetches detailed information using GitHub API.
 
         Args:
-            language (Optional[str]): Filter by programming language
-            since (str): Time period ('daily', 'weekly', 'monthly')
+            language (Literal["python", "go", "rust", None]): Filter by programming language
+            since (Literal["daily", "weekly", "monthly"]): Time period
 
         Returns:
             List[GitHubRepository]: List of trending repositories
         """
         # Build trending page URL
         trending_url = "https://github.com/trending"
-        params = {}
-
+        params = {"since": since}
         if language:
-            params["l"] = language
-
-        if since in ["daily", "weekly", "monthly"]:
-            since_param_map = {"daily": "daily", "weekly": "weekly", "monthly": "monthly"}
-            params["since"] = since_param_map[since]
+            trending_url += f"/{language}"
 
         # Fetch trending page
         logfire.info(
@@ -181,3 +181,56 @@ class GitHubAPIClient(GitHubAPIConfig):
 
         logfire.info(f"Successfully fetched details for {len(repositories)} repositories")
         return repositories
+
+    def get_readme(self, full_name: str) -> ReadmeData:
+        url = f"{self.base_url}/repos/{full_name}/readme"
+
+        data = self._make_request(url=url)
+
+        content = data.get("content", "")
+        encoding = data.get("encoding", "utf-8")
+
+        if encoding == "base64":
+            content = base64.b64decode(content).decode("utf-8")
+
+        readme = ReadmeData(
+            repository_full_name=full_name,
+            content=content,
+            encoding=encoding,
+            size=data.get("size", 0),
+            download_url=data.get("download_url"),
+            fetched_at=datetime.datetime.now(),
+        )
+
+        return readme
+
+    def get_detail(self, repositories: list[GitHubRepository]) -> TrendingData:
+        # Group repositories by language
+        repositories_by_language: dict[str, list[GitHubRepository]] = defaultdict(list)
+        for repo in repositories:
+            language = repo.language or "Unknown"
+            repositories_by_language[language].append(repo)
+
+        # Calculate language statistics
+        languages = {}
+        for language, repos in repositories_by_language.items():
+            total_stars = sum(repo.stargazers_count for repo in repos)
+            average_stars = total_stars / len(repos) if repos else 0
+
+            languages[language] = LanguageStats(
+                language=language,
+                count=len(repos),
+                repositories=repos,
+                total_stars=total_stars,
+                average_stars=average_stars,
+            )
+
+        # Create trending data object
+        trending_data = TrendingData(
+            fetched_at=datetime.datetime.now(),
+            total_repositories=len(repositories),
+            languages=languages,
+            repositories_by_language=dict(repositories_by_language),
+        )
+
+        return trending_data
