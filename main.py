@@ -44,7 +44,7 @@ class TrendingAI(GitHubAPIClient, TrendingAnalysis):
 
     def __call__(self) -> list[GitHubRepository]:
         repos = self.get_trendings(language="python", since="daily")
-        # self.trending(repos=repos)
+        self.trending(repos=repos)
         self.analysis(repos=repos)
         return repos
 

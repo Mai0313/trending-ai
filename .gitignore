@@ -167,3 +167,4 @@ docker-compose.override.yaml
 # Generated Docs
 /docs/Reference
 /docs/Scripts
+/docs/report/**/*.json
