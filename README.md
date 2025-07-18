@@ -117,6 +117,51 @@ This will:
 - ✅ Scrape GitHub trending page for repository names
 - ✅ Fetch detailed information via GitHub API
 - ✅ Download README files with proper encoding handling
+- ✅ Generate AI analysis reports for each repository
+- ✅ Save structured data to `./data/YYYY-MM-DD/` directory
+
+### Configuration Options
+
+The current `main.py` uses a combined `TrendingAI` class. You can customize it by modifying the parameters:
+
+```python
+from src.trending_ai.main import TrendingAI
+
+# Initialize with custom settings
+trending_ai = TrendingAI(
+    # GitHub API settings
+    api_key="your_github_token",
+    
+    # OpenAI settings  
+    base_url="https://api.openai.com/v1",
+    api_key="your_openai_key", 
+    model="gpt-4",
+    
+    # Output settings
+    output_folder=Path("./custom_output")
+)
+
+# Run analysis
+trending_ai()
+```
+
+For more granular control, you can use individual components:
+
+```python
+from src.trending_ai.client import GitHubAPIClient
+
+client = GitHubAPIClient()
+repos = client.get_trendings(
+    language="python",  # Options: "python", "go", "rust", None
+    since="daily",      # Options: "daily", "weekly", "monthly"  
+    limit=50           # Optional: limit number of repos
+)
+
+This will:
+
+- ✅ Scrape GitHub trending page for repository names
+- ✅ Fetch detailed information via GitHub API
+- ✅ Download README files with proper encoding handling
 - ✅ Save structured data to `./data/` directory with timestamps
 
 ### Configuration Options
@@ -138,48 +183,45 @@ def main():
 
 ### Understanding the Output
 
-The program generates files in the `./data/` directory:
+The program generates files in dated directories under `./data/`:
 
-- **trending_repos_YYYY-MM-DD_HH:MM:SS.json**: Complete repository data with README content
+**Generated files:**
+- **`github_trending.json`**: Complete repository data including README content and metadata
+- **`{repo-name}.md`**: AI-generated analysis report for each repository
 
-Each repository entry includes:
-
+**Repository data structure in JSON:**
 - Basic info: name, description, URL, stars, forks
-- Owner details: username, avatar, profile URL
+- Owner details: username, avatar, profile URL  
 - Timestamps: created, updated, last pushed
 - Topics and programming language
 - Complete README content with metadata
 
+**AI Analysis reports contain:**
+- Technical summary of the repository
+- Key highlights and features
+- Technology stack analysis
+- Professional markdown formatting
+
 ### Example Output
 
-```bash
-🚀 TrendingAI - GitHub Trending Repositories Analyzer
-============================================================
-📊 Analyzing trending repositories...
-Fetched page 1, got 100 repositories
-Total repositories fetched: 300
+When you run `python main.py`, the application will:
 
-============================================================
-TRENDING REPOSITORIES SUMMARY
-============================================================
-Fetched at: 2025-07-18 12:43:55
-Total repositories: 300
-Programming languages: 15
+1. **Scrape GitHub trending page** for Python repositories
+2. **Fetch detailed information** via GitHub API  
+3. **Download README files** with proper encoding
+4. **Generate AI analysis reports** for each repository
+5. **Save structured data** to dated directories
 
-Language             Count      Total Stars     Avg Stars
-------------------------------------------------------------
-Python               45         4500            100.0
-JavaScript           38         3040            80.0
-TypeScript           25         3750            150.0
-Go                   20         2400            120.0
-Rust                 15         2250            150.0
-
-✅ Analysis complete!
-📁 Results saved in the 'output' directory
-📊 Total repositories analyzed: 300
-📚 README files downloaded: 285
-🌐 Programming languages found: 15
+**Output directory structure:**
 ```
+./data/2025-07-18/
+├── github_trending.json          # Complete repository data with README content
+├── repo1-name.md                 # AI analysis report for repo1
+├── repo2-name.md                 # AI analysis report for repo2
+└── ...                           # Individual analysis reports for each repo
+```
+
+**Console output is minimal** - the application runs quietly and saves results to files. You can monitor progress through the structured logging if configured.
 
 ## 📁 Project Structure
 

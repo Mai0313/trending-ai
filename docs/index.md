@@ -127,25 +127,20 @@ TrendingAI combines the best of both worlds: web scraping for trend discovery an
 # Run the analyzer to get trending Python repositories
 python main.py
 
-# Output will be saved to ./data/ directory
-# Example: trending_repos_2024-07-18_12:30:45.json
+# Output will be saved to ./data/YYYY-MM-DD/ directory
+# Files: github_trending.json + individual .md analysis reports
 ````
 
 ### Configuration
 
-Customize the analysis by modifying `main.py`:
+The main application uses a combined `TrendingAI` class:
 
 ```python
-from src.trending_ai.client import GitHubAPIClient
+from src.trending_ai.main import TrendingAI
 
-
-def main():
-    client = GitHubAPIClient()
-    repos = client.get_trendings(
-        language="python",  # Options: "python", "go", "rust", None
-        since="daily",  # Options: "daily", "weekly", "monthly"
-        limit=50,  # Optional: limit number of repos
-    )
+# Basic usage with default settings
+trending_ai = TrendingAI(model="gpt-4")
+trending_ai()
 ```
 
 ## 📁 Project Structure
