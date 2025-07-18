@@ -5,6 +5,8 @@ import time
 import base64
 from typing import Any, Literal
 import datetime
+import asyncio
+import httpx
 from collections import defaultdict
 
 from bs4 import BeautifulSoup
@@ -75,18 +77,6 @@ class GitHubAPIClient(GitHubAPIConfig):
         return session
 
     def _make_request(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
-        """Make a request to the GitHub API with rate limiting.
-
-        Args:
-            url (str): The API endpoint URL
-            params (Optional[Dict]): Query parameters
-
-        Returns:
-            Dict: The JSON response from the API
-
-        Raises:
-            requests.RequestException: If the request fails
-        """
         response = self.session.get(url, params=params)
         response.raise_for_status()
 
@@ -102,10 +92,32 @@ class GitHubAPIClient(GitHubAPIConfig):
                 sleep_time=sleep_time,
             )
             time.sleep(sleep_time)
-
-        # Add delay between requests
-        time.sleep(self.rate_limit_delay)
         return response.json()
+
+    async def _a_make_request(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+        async with httpx.AsyncClient() as client:
+            headers={
+                "Accept": "application/vnd.github.v3+json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            }
+            if self.token:
+                headers.update({"Authorization": f"token {self.token}"})
+            response = await client.get(url, params=params, headers=headers)
+            response.raise_for_status()
+
+            # Check rate limit
+            remaining = int(response.headers.get("X-RateLimit-Remaining", 0))
+            if remaining < 10:
+                reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
+                sleep_time = max(reset_time - int(time.time()), 0) + 1
+                logfire.warning(
+                    "Rate Limit is Low",
+                    remaining=remaining,
+                    reset_time=reset_time,
+                    sleep_time=sleep_time,
+                )
+                await asyncio.sleep(sleep_time)
+            return response.json()
 
     def get_trendings(
         self,
@@ -113,19 +125,6 @@ class GitHubAPIClient(GitHubAPIConfig):
         since: Literal["daily", "weekly", "monthly"],
         limit: int | None = None,
     ) -> list[GitHubRepository]:
-        """Get trending repositories from GitHub trending page.
-
-        Scrapes the GitHub trending page to get repository names,
-        then fetches detailed information using GitHub API.
-
-        Args:
-            language (Literal["python", "go", "rust", None]): Filter by programming language
-            since (Literal["daily", "weekly", "monthly"]): Time period
-            limit (int | None): Maximum number of repositories to fetch
-
-        Returns:
-            List[GitHubRepository]: List of trending repositories
-        """
         # Build trending page URL
         trending_url = "https://github.com/trending"
         params: dict[str, str] = {"since": since}

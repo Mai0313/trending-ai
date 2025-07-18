@@ -72,6 +72,6 @@ class TrendingAI(GitHubAPIClient, TrendingAnalysis):
 if __name__ == "__main__":
     import fire
 
-    trending_ai = TrendingAI(model="gpt-4o")
+    trending_ai = TrendingAI(model="o4-mini")
 
     fire.Fire(trending_ai)
