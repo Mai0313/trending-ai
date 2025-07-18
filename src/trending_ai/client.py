@@ -124,7 +124,7 @@ class GitHubAPIClient(GitHubAPIConfig):
         """
         # Build trending page URL
         trending_url = "https://github.com/trending"
-        params = {"since": since}
+        params: dict[str, str] = {"since": since}
         if language:
             trending_url += f"/{language}"
 
@@ -173,7 +173,7 @@ class GitHubAPIClient(GitHubAPIConfig):
                 logfire.info("Found trending repository", repo_name=full_name)
 
         # Fetch detailed information for each repository using GitHub API
-        repositories = []
+        repositories: list[GitHubRepository] = []
         for repo_name in repo_names:
             url = f"{self.base_url}/repos/{repo_name}"
             repo_dict = self._make_request(url=url)
