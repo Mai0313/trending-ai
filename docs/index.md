@@ -1,7 +1,32 @@
 # TrendingAI - GitHub Trending Repositories Analyzer
 
 [![python](https://img.shields.io/badge/-Python_3.10_%7C_3.11_%7C_3.12-blue?logo=python&logoColor=white)](https://github.com/pre-commit/pre-commit)
-[![uv](https://img.shields.io/badge/-uv_dependency_management-2C5F2D?logo=python&logoColor=white)](https://docs.astral.sh/uv/)
+\[!\[uv\](https://img.shields.io/badge/-uv_dependency_management```python
+client = GitHubAPIClient(
+api_key="your_token", # GitHub token
+per_page=100, # Items per API call
+max_pages=10, # Maximum pages to fetch
+rate_limit_delay=1.0, # Delay between requests
+)
+
+# AI Analysis setup
+
+analyzer = TrendingAnalysis(
+base_url="https://api.openai.com/v1", # or Azure endpoint
+api_key="your_openai_key",
+model="gpt-4" # or your preferred model
+)
+
+````
+
+## 🎯 Use Cases
+
+- **Research**: Academic research on programming language trends
+- **Market Analysis**: Understanding popular technologies and frameworks
+- **Developer Insights**: Staying updated with emerging projects
+- **Content Creation**: Blog posts about trending technologies
+- **Portfolio Inspiration**: Discovering interesting projects to learn from
+- **AI-Powered Reports**: Generate intelligent technical analysis for trending repositorieshon&logoColor=white)](https://docs.astral.sh/uv/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![tests](https://github.com/Mai0313/trending_ai/actions/workflows/test.yml/badge.svg)](https://github.com/Mai0313/trending_ai/actions/workflows/test.yml)
 [![code-quality](https://github.com/Mai0313/trending_ai/actions/workflows/code-quality-check.yml/badge.svg)](https://github.com/Mai0313/trending_ai/actions/workflows/code-quality-check.yml)
@@ -31,6 +56,7 @@ TrendingAI combines the best of both worlds: web scraping for trend discovery an
 - **GitHub API Integration**: Fetches detailed repository information via official API
 - **README Collection**: Downloads and processes README files with proper encoding detection
 - **Multi-language Support**: Filter by specific programming languages or collect all
+- **AI-Powered Analysis**: Generate intelligent technical reports using OpenAI/Azure OpenAI integration
 
 ### **Modern Development Stack**
 
@@ -39,6 +65,7 @@ TrendingAI combines the best of both worlds: web scraping for trend discovery an
 - **requests** for HTTP client with session management
 - **BeautifulSoup4** with lxml parser for fast HTML parsing
 - **logfire** for structured logging and monitoring
+- **OpenAI API** for AI-powered repository analysis and report generation
 
 ### **Production-Ready Features**
 
@@ -102,7 +129,7 @@ python main.py
 
 # Output will be saved to ./data/ directory
 # Example: trending_repos_2024-07-18_12:30:45.json
-```
+````
 
 ### Configuration
 
@@ -129,7 +156,8 @@ trending_ai/
 ├── src/trending_ai/        # Core package
 │   ├── __init__.py
 │   ├── models.py          # Pydantic data models
-│   └── client.py          # GitHub API client with web scraping
+│   ├── client.py          # GitHub API client with web scraping
+│   └── analysis.py        # AI-powered repository analysis
 ├── data/                  # Generated JSON data files
 ├── docs/                  # MkDocs documentation
 ├── scripts/               # Utility scripts
@@ -235,6 +263,23 @@ export GITHUB_TOKEN=ghp_your_token_here
 
 # Or create .env file
 echo "GITHUB_TOKEN=ghp_your_token_here" > .env
+```
+
+### AI Analysis Configuration
+
+Set up OpenAI or Azure OpenAI for intelligent repository analysis:
+
+```bash
+# OpenAI Configuration
+export OPENAI_API_TYPE="openai"
+export OPENAI_BASE_URL="https://api.openai.com/v1"
+export OPENAI_API_KEY="sk-proj-your_key_here"
+
+# Azure OpenAI Configuration
+export OPENAI_API_TYPE="azure"
+export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com"
+export AZURE_OPENAI_API_KEY="your_azure_key"
+export OPENAI_API_VERSION="2024-02-01"
 ```
 
 ### Client Configuration

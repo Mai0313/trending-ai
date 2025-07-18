@@ -34,6 +34,13 @@ Perfect for researchers, developers, and data scientists who want to monitor tre
 - **JSON export**: Clean, structured output for easy integration with other tools
 - **Error resilience**: Continues processing even when individual repositories fail
 
+### 🤖 **AI-Powered Analysis**
+
+- **OpenAI Integration**: Generate intelligent technical reports for trending repositories
+- **Automated Insights**: AI-powered analysis of repository purpose, highlights, and technical details
+- **Multi-Provider Support**: Works with OpenAI and Azure OpenAI services
+- **Markdown Reports**: Generate professional technical reports in markdown format
+
 ### 🔧 **Developer Experience**
 
 - **GitHub API integration**: Official API with intelligent rate limiting and retry logic
@@ -47,7 +54,8 @@ Perfect for researchers, developers, and data scientists who want to monitor tre
 - **Pydantic V2**: Latest data validation and serialization
 - **Session management**: Persistent HTTP sessions with proper headers
 - **Rate limit handling**: Smart delays and monitoring of GitHub API limits
-- **Modular design**: Clean separation between client, models, and business logic
+- **Modular design**: Clean separation between client, models, analysis, and business logic
+- **AI Analysis Engine**: OpenAI-powered repository analysis and report generation
 - **Documentation**: Comprehensive code documentation and usage examples
 - **Release automation**: Semantic versioning and release drafting
 - **Auto-labeling**: Intelligent PR categorization
@@ -181,7 +189,8 @@ trending_ai/
 ├── src/trending_ai/        # Core package
 │   ├── __init__.py
 │   ├── models.py          # Pydantic data models
-│   └── client.py          # GitHub API client with web scraping
+│   ├── client.py          # GitHub API client with web scraping
+│   └── analysis.py        # AI-powered repository analysis
 ├── data/                  # Generated JSON data files
 ├── .env.example          # Environment variables template
 ├── pyproject.toml        # Project configuration with uv
@@ -258,6 +267,7 @@ repos = client.get_trendings(
 
 - **GitHub Trending Scraper**: Scrapes GitHub trending page using BeautifulSoup
 - **GitHub API Client**: Fetches detailed repository information via official API
+- **AI Analysis Engine**: OpenAI-powered analysis for generating technical reports
 - **Data Models**: Type-safe Pydantic models for repositories, users, and README data
 - **README Collector**: Downloads and processes README files with encoding detection
 - **JSON Export**: Structured data export with timestamps
@@ -268,6 +278,7 @@ repos = client.get_trendings(
 - **Comprehensive Metadata**: Stars, forks, issues, dates, topics, owner info, and more
 - **Multi-language Support**: Filter by specific programming languages or collect all
 - **README Extraction**: Full content extraction with Base64 decoding and encoding handling
+- **AI Analysis**: Generate intelligent technical reports about repository purpose and highlights
 - **Progress Logging**: Structured logging with Logfire for debugging and monitoring
 
 ### Technical Capabilities
@@ -294,8 +305,48 @@ repos = client.get_trendings(
 - **Developer Insights**: Staying updated with emerging projects
 - **Content Creation**: Blog posts and articles about trending technologies
 - **Portfolio Inspiration**: Discovering interesting projects to learn from
+- **AI-Powered Reports**: Generate intelligent technical analysis reports for trending repositories
 
 ## 🔧 Advanced Usage
+
+### AI Analysis Integration
+
+Generate intelligent technical reports for repositories:
+
+```python
+from src.trending_ai.analysis import TrendingAnalysis
+from src.trending_ai.client import GitHubAPIClient
+
+# Set up OpenAI configuration
+analyzer = TrendingAnalysis(
+    base_url="https://api.openai.com/v1",  # or Azure endpoint
+    api_key="your_openai_api_key",
+    model="gpt-4",  # or your preferred model
+)
+
+# Get repositories and analyze
+client = GitHubAPIClient()
+repos = client.get_trendings(language="python", since="daily")
+
+for repo in repos:
+    technical_report = analyzer.get_analysis(repo)
+    print(f"Analysis for {repo.full_name}:\n{technical_report}")
+```
+
+### Environment Variables for AI Analysis
+
+```bash
+# OpenAI Configuration
+export OPENAI_API_TYPE="openai"  # or "azure"
+export OPENAI_BASE_URL="https://api.openai.com/v1"
+export OPENAI_API_KEY="sk-proj-..."
+
+# For Azure OpenAI
+export OPENAI_API_TYPE="azure"
+export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com"
+export AZURE_OPENAI_API_KEY="your_azure_key"
+export OPENAI_API_VERSION="2024-02-01"
+```
 
 ### Custom Analysis Periods
 
@@ -303,7 +354,7 @@ Modify the time period for trending analysis:
 
 ```python
 # In main.py, change the 'since' parameter:
-trending_data = analyzer.analyze_trending_repositories(since="weekly")  # or "monthly"
+repos = client.get_trendings(since="weekly")  # or "monthly"
 ```
 
 ### Language-Specific Analysis

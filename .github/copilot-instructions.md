@@ -13,6 +13,7 @@ This is TrendingAI, a modern Python application that analyzes GitHub trending re
 - **Hybrid Data Collection**: Combines GitHub trending page web scraping with official API for complete data
 - **Multi-language Support**: Supports filtering by specific programming languages (Python, Go, Rust) or collecting all languages
 - **README Processing**: Automatic download and processing of README files with proper encoding detection (Base64, UTF-8)
+- **AI-Powered Analysis**: Generate intelligent technical reports using OpenAI/Azure OpenAI for repository analysis
 - **Structured Data Export**: Exports comprehensive JSON data with timestamps for easy integration with other tools
 - **Intelligent Rate Limiting**: Handles GitHub API rate limits with automatic delays and monitoring
 
@@ -22,6 +23,7 @@ This is TrendingAI, a modern Python application that analyzes GitHub trending re
 - **Core Package**: `src/trending_ai/` - Contains all application logic
     - `models.py` - Pydantic V2 data models for type-safe data structures
     - `client.py` - GitHub API client with web scraping capabilities and rate limiting
+    - `analysis.py` - AI-powered repository analysis using OpenAI/Azure OpenAI
 - **Output Directory**: `data/` - Generated JSON files with repository data and README content
 - **Configuration**: Environment variables and Pydantic settings for GitHub token and client configuration
 
@@ -30,12 +32,15 @@ This is TrendingAI, a modern Python application that analyzes GitHub trending re
 - **GitHubUser**: User/organization information (login, ID, avatar, profile URL, account type)
 - **GitHubRepository**: Complete repository metadata including stars, forks, language, topics, timestamps, and embedded README
 - **ReadmeData**: README file content with metadata (content, encoding, size, download URL, fetch timestamp)
+- **OpenAIConfig**: Configuration settings for OpenAI and Azure OpenAI integration
+- **TrendingAnalysis**: AI analysis engine with OpenAI client management and repository analysis capabilities
 
 ## Key Capabilities
 
 - **Trending Discovery**: Scrapes GitHub trending page using BeautifulSoup to find trending repository names
 - **API Data Enrichment**: Uses GitHub API to fetch complete repository metadata for each discovered repository
 - **README Collection**: Downloads README files for all repositories with proper encoding handling
+- **AI Analysis**: Generates intelligent technical reports using OpenAI models for repository analysis
 - **Error Recovery**: Robust error handling that continues processing even when individual repositories fail
 - **Structured Logging**: Uses Logfire for advanced logging with structured output for debugging
 
@@ -47,6 +52,7 @@ This is TrendingAI, a modern Python application that analyzes GitHub trending re
 - **pydantic**: Data validation and serialization (V2)
 - **pydantic-settings**: Configuration management via environment variables
 - **logfire**: Advanced logging with structured output
+- **openai**: OpenAI API client for AI-powered repository analysis
 
 ## Project Usage
 
@@ -75,6 +81,7 @@ The application generates JSON files in the `data/` directory:
 - **Time Period**: Configure trending period - "daily", "weekly", or "monthly"
 - **Rate Limiting**: Configurable delays and pagination settings via `GitHubAPIConfig`
 - **Output Location**: Data is saved to `./data/` directory with automatic directory creation
+- **AI Analysis**: Configure OpenAI/Azure OpenAI settings via environment variables for AI-powered repository analysis
 
 # Rule Sheet
 

@@ -24,21 +24,28 @@ class TrendingAI(GitHubAPIClient, TrendingAnalysis):
         self.output_folder.mkdir(parents=True, exist_ok=True)
         return self
 
-    def analysis(self) -> list[GitHubRepository]:
-        repos = self.get_trendings(language="python", since="daily")
+    def analysis(self, repos: list[GitHubRepository] | None = None) -> list[GitHubRepository]:
+        if not repos:
+            repos = self.get_trendings(language="python", since="daily")
         for repo in repos:
             report = self.get_analysis(repo=repo)
             report_file = self.output_folder / f"{repo.name}.md"
             report_file.write_text(report, encoding="utf-8")
         return repos
 
-    def __call__(self) -> list[GitHubRepository]:
-        """Main function to run the trending repositories analysis."""
-        repos = self.get_trendings(language="python", since="daily")
+    def trending(self, repos: list[GitHubRepository] | None = None) -> list[GitHubRepository]:
+        if not repos:
+            repos = self.get_trendings(language="python", since="daily")
         repo_list = [repo.model_dump() for repo in repos]
         output_path = self.output_folder / "github_trending.json"
         with output_path.open("w", encoding="utf-8") as f:
             json.dump(repo_list, f, indent=4, ensure_ascii=False)
+        return repos
+
+    def __call__(self) -> list[GitHubRepository]:
+        repos = self.get_trendings(language="python", since="daily")
+        self.trending(repos=repos)
+        self.analysis(repos=repos)
         return repos
 
 
