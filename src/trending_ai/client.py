@@ -3,7 +3,7 @@
 import re
 import time
 import base64
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 import datetime
 from collections import defaultdict
 
@@ -33,7 +33,8 @@ class GitHubAPIConfig(BaseSettings):
         frozen=False,
         deprecated=False,
     )
-    api_key: str = Field(
+    api_key: Optional[str] = Field(
+        default=None,
         description="GitHub personal access token for authentication",
         validation_alias="GITHUB_TOKEN",
         frozen=False,
@@ -68,8 +69,9 @@ class GitHubAPIClient(GitHubAPIConfig):
         session.headers.update({
             "Accept": "application/vnd.github.v3+json",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            "Authorization": f"token {self.api_key}",
         })
+        if self.api_key:
+            session.headers.update({"Authorization": f"token {self.api_key}"})
         return session
 
     def _make_request(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
