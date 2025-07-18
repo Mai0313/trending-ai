@@ -23,7 +23,7 @@ Perfect for researchers, developers, and data scientists who want to monitor tre
 ### 🔍 **GitHub Trending Analysis**
 
 - **Web scraping + API**: Combines GitHub trending page scraping with official API for complete data
-- **Multi-language support**: Supports Python, Go, Rust, and other languages 
+- **Multi-language support**: Supports Python, Go, Rust, and other languages
 - **Time period flexibility**: Daily, weekly, and monthly trending analysis
 - **Comprehensive data collection**: Stars, forks, issues, creation dates, topics, and complete metadata
 
@@ -118,12 +118,13 @@ You can customize the analysis by modifying the client parameters in `main.py`:
 ```python
 from src.trending_ai.client import GitHubAPIClient
 
+
 def main():
     client = GitHubAPIClient()
     repos = client.get_trendings(
         language="python",  # Options: "python", "go", "rust", None
-        since="daily",      # Options: "daily", "weekly", "monthly"
-        limit=50           # Optional: limit number of repos
+        since="daily",  # Options: "daily", "weekly", "monthly"
+        limit=50,  # Optional: limit number of repos
     )
 ```
 
@@ -134,8 +135,9 @@ The program generates files in the `./data/` directory:
 - **trending_repos_YYYY-MM-DD_HH:MM:SS.json**: Complete repository data with README content
 
 Each repository entry includes:
+
 - Basic info: name, description, URL, stars, forks
-- Owner details: username, avatar, profile URL  
+- Owner details: username, avatar, profile URL
 - Timestamps: created, updated, last pushed
 - Topics and programming language
 - Complete README content with metadata
@@ -236,17 +238,17 @@ from src.trending_ai.client import GitHubAPIClient
 
 # Initialize client with custom settings
 client = GitHubAPIClient(
-    api_key="your_token_here",      # Or set GITHUB_TOKEN env var
-    per_page=100,                   # Repositories per API call
-    max_pages=10,                   # Maximum pages to fetch
-    rate_limit_delay=1.0,           # Delay between requests (seconds)
+    api_key="your_token_here",  # Or set GITHUB_TOKEN env var
+    per_page=100,  # Repositories per API call
+    max_pages=10,  # Maximum pages to fetch
+    rate_limit_delay=1.0,  # Delay between requests (seconds)
 )
 
 # Get trending repositories
 repos = client.get_trendings(
     language="python",  # "python", "go", "rust", or None for all
-    since="daily",      # "daily", "weekly", or "monthly"
-    limit=50           # Optional: limit number of repositories
+    since="daily",  # "daily", "weekly", or "monthly"
+    limit=50,  # Optional: limit number of repositories
 )
 ```
 

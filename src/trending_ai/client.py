@@ -3,7 +3,7 @@
 import re
 import time
 import base64
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 import datetime
 from collections import defaultdict
 
@@ -21,7 +21,7 @@ class GitHubAPIConfig(BaseSettings):
 
     Attributes:
         base_url (str): The base URL for GitHub API
-        api_key (Optional[str]): GitHub personal access token for authentication
+        token (Optional[str]): GitHub personal access token for authentication
         per_page (int): Number of items per page for pagination
         max_pages (int): Maximum pages to fetch
         rate_limit_delay (float): Delay between requests to avoid rate limiting
@@ -33,7 +33,7 @@ class GitHubAPIConfig(BaseSettings):
         frozen=False,
         deprecated=False,
     )
-    api_key: Optional[str] = Field(
+    token: str | None = Field(
         default=None,
         description="GitHub personal access token for authentication",
         validation_alias="GITHUB_TOKEN",
@@ -70,8 +70,8 @@ class GitHubAPIClient(GitHubAPIConfig):
             "Accept": "application/vnd.github.v3+json",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
         })
-        if self.api_key:
-            session.headers.update({"Authorization": f"token {self.api_key}"})
+        if self.token:
+            session.headers.update({"Authorization": f"token {self.token}"})
         return session
 
     def _make_request(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -121,6 +121,7 @@ class GitHubAPIClient(GitHubAPIConfig):
         Args:
             language (Literal["python", "go", "rust", None]): Filter by programming language
             since (Literal["daily", "weekly", "monthly"]): Time period
+            limit (int | None): Maximum number of repositories to fetch
 
         Returns:
             List[GitHubRepository]: List of trending repositories

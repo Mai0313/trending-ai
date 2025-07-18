@@ -63,10 +63,10 @@ This application is designed to collect GitHub trending repository data by:
 The application generates JSON files in the `data/` directory:
 
 - **trending_repos_YYYY-MM-DD_HH:MM:SS.json**: Complete repository data including:
-  - Repository metadata (stars, forks, language, topics, timestamps)
-  - Owner information (username, avatar, profile URL)
-  - Embedded README content with metadata
-  - All data in a single structured JSON array
+    - Repository metadata (stars, forks, language, topics, timestamps)
+    - Owner information (username, avatar, profile URL)
+    - Embedded README content with metadata
+    - All data in a single structured JSON array
 
 ## Configuration Options
 
