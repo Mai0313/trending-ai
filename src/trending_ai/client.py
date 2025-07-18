@@ -109,6 +109,7 @@ class GitHubAPIClient(GitHubAPIConfig):
         self,
         language: Literal["python", "go", "rust", None],
         since: Literal["daily", "weekly", "monthly"],
+        limit: int | None = None,
     ) -> list[GitHubRepository]:
         """Get trending repositories from GitHub trending page.
 
@@ -167,6 +168,8 @@ class GitHubAPIClient(GitHubAPIConfig):
                 logfire.info("Found trending repository", repo_name=full_name)
 
         # Fetch detailed information for each repository using GitHub API
+        if limit:
+            repo_names = repo_names[:limit]
         repositories: list[GitHubRepository] = []
         for repo_name in repo_names:
             logfire.info("Fetching repository details from GitHub API", repo_name=repo_name)
@@ -182,7 +185,7 @@ class GitHubAPIClient(GitHubAPIConfig):
                     encoding="utf-8",
                     size=0,
                     download_url=None,
-                    fetched_at=datetime.datetime.now(),
+                    fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"),
                 )
             repositories.append(repo)
         return repositories
@@ -204,7 +207,7 @@ class GitHubAPIClient(GitHubAPIConfig):
             encoding=encoding,
             size=data.get("size", 0),
             download_url=data.get("download_url"),
-            fetched_at=datetime.datetime.now(),
+            fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"),
         )
 
         return readme
@@ -232,7 +235,7 @@ class GitHubAPIClient(GitHubAPIConfig):
 
         # Create trending data object
         trending_data = TrendingData(
-            fetched_at=datetime.datetime.now(),
+            fetched_at=datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"),
             total_repositories=len(repositories),
             languages=languages,
             repositories_by_language=dict(repositories_by_language),
