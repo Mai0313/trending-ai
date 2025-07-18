@@ -69,6 +69,7 @@ class GitHubRepository(BaseModel):
     private: bool = Field(..., description="Whether the repository is private")
     fork: bool = Field(..., description="Whether the repository is a fork")
     topics: list[str] = Field(default_factory=list, description="Repository topics/tags")
+    readme: str | None = Field(default=None, description="README content if available")
 
 
 class LanguageStats(BaseModel):

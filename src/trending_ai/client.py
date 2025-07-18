@@ -4,8 +4,8 @@ import re
 import time
 import base64
 from typing import Any, Literal
-from collections import defaultdict
 import datetime
+from collections import defaultdict
 
 from bs4 import BeautifulSoup
 import logfire
@@ -67,7 +67,7 @@ class GitHubAPIClient(GitHubAPIConfig):
         session = requests.Session()
         session.headers.update({
             "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "TrendingAI/1.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "Authorization": f"token {self.api_key}",
         })
         return session
@@ -135,13 +135,7 @@ class GitHubAPIClient(GitHubAPIConfig):
             params=params,
         )
 
-        # Use a regular session for scraping (no auth needed for public page)
-        scraping_session = requests.Session()
-        scraping_session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        })
-
-        response = scraping_session.get(trending_url, params=params)
+        response = self.session.get(trending_url, params=params)
         response.raise_for_status()
 
         # Parse HTML
@@ -175,11 +169,15 @@ class GitHubAPIClient(GitHubAPIConfig):
         # Fetch detailed information for each repository using GitHub API
         repositories: list[GitHubRepository] = []
         for repo_name in repo_names:
+            logfire.info("Fetching repository details from GitHub API", repo_name=repo_name)
             url = f"{self.base_url}/repos/{repo_name}"
             repo_dict = self._make_request(url=url)
-            repositories.append(GitHubRepository(**repo_dict))
-
-        logfire.info(f"Successfully fetched details for {len(repositories)} repositories")
+            repo = GitHubRepository(**repo_dict)
+            try:
+                repo.readme = self.get_readme(full_name=repo.full_name)
+            except Exception:
+                repo.readme = f"No readme available, please check {repo.html_url}"
+            repositories.append(repo)
         return repositories
 
     def get_readme(self, full_name: str) -> ReadmeData:
