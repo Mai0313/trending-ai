@@ -7,6 +7,16 @@ from openai.types.shared import ChatModel
 
 from src.trending_ai.models import GitHubRepository
 
+prompt_template = """
+You are an expert in analyzing GitHub repositories.
+This repository is from Github trending, please notice some highlight points and summary what this repo is doing.
+
+{repo_detail}
+You must reply it as a technical report in markdown format, DO NOT include any code block.
+The title should only contain the repository name and owner. e.g. "<<repo name>> by <<owner>>".
+You must use {language} to write the report.
+"""
+
 
 class OpenAIConfig(BaseSettings):
     api_type: str = Field(
@@ -83,15 +93,7 @@ class TrendingAnalysis(OpenAIConfig):
     def get_analysis(
         self, repo: GitHubRepository, language: Literal["en-US", "zh-TW", "zh-CN"]
     ) -> str:
-        prompt = f"""
-        You are an expert in analyzing GitHub repositories.
-        This repository is from Github trending, please notice some highlight points and summary what this repo is doing.
-
-        {repo.model_dump_json()}
-        You must reply it as a technical report in markdown format, DO NOT include any code block.
-        The title should only contain the repository name and owner. e.g. "<<repo name>> by <<owner>>".
-        You must use {language} to write the report.
-        """
+        prompt = prompt_template.format(repo_detail=repo.model_dump_json(), language=language)
 
         response = self.client.chat.completions.create(
             model=self.model, messages=[{"role": "user", "content": prompt}]
@@ -101,15 +103,7 @@ class TrendingAnalysis(OpenAIConfig):
     async def a_get_analysis(
         self, repo: GitHubRepository, language: Literal["en-US", "zh-TW", "zh-CN"]
     ) -> str:
-        prompt = f"""
-        You are an expert in analyzing GitHub repositories.
-        This repository is from Github trending, please notice some highlight points and summary what this repo is doing.
-
-        {repo.model_dump_json()}
-        You must reply it as a technical report in markdown format, DO NOT include any code block.
-        The title should only contain the repository name and owner. e.g. "<<repo name>> by <<owner>>".
-        You must use {language} to write the report.
-        """
+        prompt = prompt_template.format(repo_detail=repo.model_dump_json(), language=language)
 
         response = await self.a_client.chat.completions.create(
             model=self.model, messages=[{"role": "user", "content": prompt}]
