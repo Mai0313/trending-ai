@@ -1,3 +1,3 @@
-"""TrendingAI package for analyzing GitHub trending repositories."""
+import logfire
 
-__version__ = "0.1.0"
+logfire.configure(send_to_logfire=False)
