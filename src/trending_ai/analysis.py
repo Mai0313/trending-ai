@@ -1,3 +1,4 @@
+from typing import Literal
 from openai import OpenAI, AzureOpenAI
 from pydantic import Field, AliasChoices, computed_field
 from pydantic_settings import BaseSettings
@@ -64,13 +65,14 @@ class TrendingAnalysis(OpenAIConfig):
             client = OpenAI(api_key=self.api_key)
         return client
 
-    def get_analysis(self, repo: GitHubRepository) -> str:
+    def get_analysis(self, repo: GitHubRepository, language: Literal["en-US", "zh-TW", "zh-CN"]) -> str:
         prompt = f"""
         You are an expert in analyzing GitHub repositories.
         This repository is from Github trending, please notice some highlight points and summary what this repo is doing.
 
         {repo.model_dump_json()}
-        You must reply it as a technical report in markdown format.
+        You must reply it as a technical report in markdown format, DO NOT include any code block.
+        You must use {language} to write the report.
         """
 
         response = self.client.chat.completions.create(
