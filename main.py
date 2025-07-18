@@ -28,7 +28,7 @@ class TrendingAI(GitHubAPIClient, TrendingAnalysis):
         if not repos:
             repos = self.get_trendings(language="python", since="daily")
         for repo in repos:
-            report = self.get_analysis(repo=repo)
+            report = self.get_analysis(repo=repo, language="zh-TW")
             report_file = self.output_folder / f"{repo.name}.md"
             report_file.write_text(report, encoding="utf-8")
         return repos
