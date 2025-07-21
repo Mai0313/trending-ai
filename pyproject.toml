@@ -69,6 +69,7 @@ authors = [
 ]
 dependencies = [
     "beautifulsoup4>=4.13.4",
+    "fire>=0.7.0",
     "logfire>=3.24.2",
     "lxml>=6.0.0",
     "openai>=1.97.0",

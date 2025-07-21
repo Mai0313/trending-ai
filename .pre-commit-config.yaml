@@ -1,6 +1,8 @@
 default_language_version:
   python: python3
 
+exclude: docs/report
+
 default_install_hook_types:
   - pre-commit
   - post-checkout

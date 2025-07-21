@@ -9,11 +9,14 @@ from collections import defaultdict
 
 from bs4 import BeautifulSoup
 import httpx
+import dotenv
 import logfire
 from pydantic import Field, ConfigDict, computed_field
 from pydantic_settings import BaseSettings
 
 from src.trending_ai.models import ReadmeData, TrendingData, LanguageStats, GitHubRepository
+
+dotenv.load_dotenv()
 
 
 class GitHubAPIConfig(BaseSettings):

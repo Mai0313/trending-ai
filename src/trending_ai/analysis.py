@@ -1,5 +1,6 @@
 from typing import Literal
 
+import dotenv
 from openai import OpenAI, AsyncOpenAI, AzureOpenAI, AsyncAzureOpenAI
 from pydantic import Field, AliasChoices, computed_field
 from pydantic_settings import BaseSettings
@@ -7,6 +8,7 @@ from openai.types.shared import ChatModel
 
 from src.trending_ai.models import GitHubRepository
 
+dotenv.load_dotenv()
 prompt_template = """
 You are an expert in analyzing GitHub repositories.
 This repository is from Github trending, please notice some highlight points and summary what this repo is doing.
