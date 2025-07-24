@@ -115,12 +115,12 @@ repos:
   #       pass_filenames: false
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.27.2
+    rev: v8.28.0
     hooks:
       - id: gitleaks
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.7.22
+    rev: 0.8.2
     hooks:
       - id: uv-sync
       - id: uv-lock
